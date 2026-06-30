@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yuvan Raaju R | Portfolio</title>
+    <title>Yuvan Raaju R | Portfolio Workstation</title>
     <meta name="description" content="Portfolio of Yuvan Raaju R, Android & ML Developer">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -68,7 +68,7 @@
 
         /* Sidebar */
         .ide-sidebar {
-            width: 260px;
+            width: 270px;
             background-color: var(--sidebar-color);
             border-right: 1px solid var(--border-color);
             display: flex;
@@ -101,7 +101,7 @@
             padding: 1rem 0;
         }
 
-        .explorer-folder {
+        .explorer-folder-header {
             padding: 0.5rem 1.5rem;
             font-size: 0.75rem;
             font-weight: 700;
@@ -111,6 +111,8 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            cursor: pointer;
+            user-select: none;
         }
 
         .explorer-list {
@@ -139,6 +141,10 @@
             background: rgba(99, 102, 241, 0.08);
             border-left: 2px solid var(--accent-primary);
             padding-left: calc(2.25rem - 2px);
+        }
+
+        .nested-item {
+            padding-left: 3.25rem;
         }
 
         /* File extension icon styling */
@@ -178,7 +184,7 @@
         }
 
         .editor-tab {
-            padding: 0 1.5rem;
+            padding: 0 1.25rem;
             height: 100%;
             display: flex;
             align-items: center;
@@ -281,22 +287,86 @@
             line-height: 1.7;
         }
 
-        /* Welcome Dashboard */
+        /* Bento Grid Welcome Layout */
         .welcome-hero {
-            padding: 3rem 0;
+            padding: 1.5rem 0;
+        }
+
+        .bento-grid {
+            display: grid;
+            grid-template-columns: 2fr 1.2fr;
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .bento-card {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+        
+        .bento-card:hover {
+            border-color: var(--border-hover);
+            background: var(--surface-hover);
+        }
+
+        .bento-main {
+            grid-column: 1 / 2;
+        }
+
+        .bento-stats {
+            grid-column: 2 / 3;
+            display: grid;
+            grid-template-rows: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+        }
+
+        .stat-number {
+            font-family: var(--font-display);
+            font-size: 2.25rem;
+            font-weight: 800;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-label {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .hero-status {
             display: inline-flex;
             align-items: center;
-            gap: 0.75rem;
-            padding: 0.5rem 1.25rem;
+            gap: 0.7rem;
+            padding: 0.45rem 1.15rem;
             border: 1px solid var(--border-color);
-            background: rgba(255, 255, 255, 0.03);
-            font-size: 0.85rem;
+            background: rgba(255, 255, 255, 0.02);
+            font-size: 0.8rem;
             font-weight: 500;
             border-radius: 9999px;
-            margin-bottom: 2.5rem;
+            margin-bottom: 2rem;
+            align-self: flex-start;
         }
 
         .pulse-dot {
@@ -321,19 +391,19 @@
         }
 
         .welcome-title {
-            font-size: clamp(2.5rem, 5vw, 4.5rem);
+            font-size: clamp(2.2rem, 4vw, 3.5rem);
             font-weight: 800;
             line-height: 1.15;
             background: linear-gradient(to right, #ffffff, #e2e8f0, #94a3b8);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
         }
 
         .welcome-roles {
-            font-size: 1.75rem;
+            font-size: 1.5rem;
             font-weight: 700;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
         }
         .accent-text {
             background: var(--accent-gradient);
@@ -344,7 +414,7 @@
         .btn-container {
             display: flex;
             gap: 1rem;
-            margin-top: 3rem;
+            margin-top: 2rem;
             flex-wrap: wrap;
         }
 
@@ -352,9 +422,9 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: 0.85rem 2rem;
+            padding: 0.8rem 1.8rem;
             font-family: var(--font-display);
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             font-weight: 600;
             cursor: pointer;
             border-radius: 8px;
@@ -386,41 +456,87 @@
         /* About / Profile styling */
         .about-grid {
             display: grid;
-            grid-template-columns: 1.2fr 1fr;
-            gap: 4rem;
-            align-items: center;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: flex-start;
         }
 
+        /* Interactive Terminal Console */
         .terminal-box {
-            background: rgba(13, 14, 25, 0.85);
+            background: rgba(10, 11, 20, 0.95);
             border: 1px solid var(--border-color);
             border-radius: 12px;
-            padding: 1.75rem;
-            position: relative;
+            height: 380px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
             font-family: var(--font-mono);
             font-size: 0.85rem;
-            color: #cbd5e1;
+            color: #e2e8f0;
         }
-        .terminal-box::before {
-            content: "";
-            position: absolute;
-            top: 15px;
-            left: 20px;
-            width: 8px;
-            height: 8px;
+        
+        .terminal-bar {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.02);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+        
+        .terminal-dots {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .terminal-dot {
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
-            background: #ff5f56;
-            box-shadow: 16px 0 0 #ffbd2e, 32px 0 0 #27c93f;
+        }
+        .terminal-dot.red { background: #ef4444; }
+        .terminal-dot.yellow { background: #f59e0b; }
+        .terminal-dot.green { background: #10b981; }
+
+        .terminal-title {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.75rem;
+            color: var(--text-muted);
         }
 
-        .terminal-content {
-            margin-top: 1.5rem;
+        .terminal-body {
+            flex-grow: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
         }
-        .terminal-line { margin-bottom: 0.5rem; }
+        
+        .terminal-output {
+            white-space: pre-wrap;
+            line-height: 1.6;
+        }
+
+        .terminal-input-line {
+            display: flex;
+            align-items: center;
+        }
+
         .prompt { color: #a855f7; margin-right: 0.5rem; }
-        .cmd { color: #f8fafc; }
-        .response { color: #a5b4fc; display: block; margin-top: 0.5rem; margin-bottom: 0.5rem; line-height: 1.5; }
+        
+        .terminal-field {
+            background: transparent;
+            border: none;
+            color: #ffffff;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            outline: none;
+            flex-grow: 1;
+        }
 
         /* Projects Section */
         .projects-grid {
@@ -439,6 +555,7 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
+            cursor: pointer;
         }
 
         .project-card::after {
@@ -518,6 +635,56 @@
             padding: 0.3rem 0.65rem;
             border-radius: 6px;
             border: 1px solid var(--border-color);
+        }
+
+        /* Case Study Tabs */
+        .case-study-title {
+            font-family: var(--font-display);
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .architecture-flow {
+            background: rgba(13, 14, 25, 0.9);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: #cbd5e1;
+            overflow-x: auto;
+            margin: 2rem 0;
+            white-space: pre;
+        }
+
+        .case-study-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 3rem;
+            margin-top: 1.5rem;
+        }
+
+        .meta-spec-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        .meta-spec-table td {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .meta-spec-table td.label {
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+            width: 40%;
+        }
+        .meta-spec-table td.value {
+            color: var(--text-main);
+            font-weight: 500;
         }
 
         /* Skills section styling */
@@ -693,14 +860,12 @@
             cursor: default;
         }
 
-        /* SVG graphics inside nodes */
         .node-svg {
             width: 100%;
             height: 100%;
             pointer-events: none;
         }
 
-        /* Neon pulsing paths when connected */
         .node-cell.connected .node-svg path {
             stroke: #a855f7;
             filter: drop-shadow(0 0 5px #a855f7);
@@ -805,12 +970,20 @@
                 grid-template-columns: 1fr;
                 gap: 3rem;
             }
+            .bento-grid {
+                grid-template-columns: 1fr;
+            }
+            .bento-stats {
+                grid-column: 1 / 2;
+                grid-template-columns: repeat(2, 1fr);
+                grid-template-rows: none;
+            }
         }
 
         @media (max-width: 768px) {
             .ide-sidebar {
                 position: fixed;
-                left: -260px;
+                left: -270px;
                 top: 0;
                 bottom: 0;
                 z-index: 100;
@@ -823,10 +996,17 @@
                 display: block;
             }
             .sidebar-header {
-                padding-right: 3.5rem; /* Avoid hamburger overlap */
+                padding-right: 3.5rem;
             }
             .ide-editor-viewport {
-                padding: 2rem 1.5rem;
+                padding: 2rem 1.25rem;
+            }
+            .bento-stats {
+                grid-template-columns: 1fr;
+            }
+            .case-study-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
             }
             .contact-links {
                 flex-direction: column;
@@ -847,10 +1027,10 @@
         <aside class="ide-sidebar" id="sidebar">
             <div class="sidebar-header">
                 <div class="sidebar-title">YUVAN.DEV</div>
-                <!-- Mobile Navigation Toggle inside workspace -->
             </div>
             <div class="explorer-section">
-                <div class="explorer-folder">
+                <!-- Root folder workspace -->
+                <div class="explorer-folder-header">
                     <svg style="width:14px; height:14px; fill:currentColor;" viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
                     workspace
                 </div>
@@ -864,6 +1044,28 @@
                     <li class="explorer-item" data-target="projects">
                         <span class="file-icon md">M↓</span>work.md
                     </li>
+                </ul>
+
+                <!-- Case studies subfolder -->
+                <div class="explorer-folder-header" style="margin-top: 1rem;">
+                    <svg style="width:14px; height:14px; fill:currentColor;" viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+                    case_studies
+                </div>
+                <ul class="explorer-list">
+                    <li class="explorer-item nested-item" data-target="case-deepsight">
+                        <span class="file-icon md">M↓</span>deepsight.md
+                    </li>
+                    <li class="explorer-item nested-item" data-target="case-artlistener">
+                        <span class="file-icon md">M↓</span>artlistener.md
+                    </li>
+                </ul>
+
+                <!-- Playground & setup subfolder -->
+                <div class="explorer-folder-header" style="margin-top: 1rem;">
+                    <svg style="width:14px; height:14px; fill:currentColor;" viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+                    system
+                </div>
+                <ul class="explorer-list">
                     <li class="explorer-item" data-target="skills">
                         <span class="file-icon py">Py</span>skills.py
                     </li>
@@ -880,7 +1082,7 @@
         <!-- Main workspace containing active editors -->
         <main class="ide-workspace">
             <!-- IDE top tab bar -->
-            <header class="ide-tabs-bar">
+            <header class="ide-tabs-bar" id="tabs-container">
                 <!-- Mobile Menu Button -->
                 <button class="mobile-nav-toggle" id="menu-btn" style="padding: 0 1rem;" aria-label="Toggle Menu">
                     <svg style="width:20px; height:20px; fill:currentColor;" viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
@@ -888,6 +1090,8 @@
                 <div class="editor-tab active" data-target="home"><span class="file-icon json">{}</span>welcome.json</div>
                 <div class="editor-tab" data-target="about"><span class="file-icon json">{}</span>about.json</div>
                 <div class="editor-tab" data-target="projects"><span class="file-icon md">M↓</span>work.md</div>
+                <div class="editor-tab" data-target="case-deepsight" style="display:none;"><span class="file-icon md">M↓</span>deepsight.md</div>
+                <div class="editor-tab" data-target="case-artlistener" style="display:none;"><span class="file-icon md">M↓</span>artlistener.md</div>
                 <div class="editor-tab" data-target="skills"><span class="file-icon py">Py</span>skills.py</div>
                 <div class="editor-tab" data-target="playground"><span class="file-icon js">JS</span>neural_link.js</div>
                 <div class="editor-tab" data-target="contact"><span class="file-icon sh">sh</span>contact.sh</div>
@@ -899,17 +1103,42 @@
                 <!-- Welcome Tab -->
                 <section class="editor-section active" id="home">
                     <div class="welcome-hero">
-                        <div class="hero-status"><span class="pulse-dot"></span>Available for Opportunities</div>
-                        <h1 class="welcome-title">Yuvan Raaju R</h1>
-                        <div class="welcome-roles">
-                            Android Developer <span class="accent-text">&</span> ML Engineer
-                        </div>
-                        <p style="max-width: 680px; font-size: 1.15rem; margin-bottom: 2.5rem;">
-                            Final-year MCA student specializing in Android development and on-device ML. Dedicated to building intelligent local applications, optimizing deep neural nets for mobile processors, and launching robust full-stack platforms.
-                        </p>
-                        <div class="btn-container">
-                            <a href="#" class="btn btn-primary tab-trigger" data-target="projects">Explore Work</a>
-                            <a href="#" class="btn btn-secondary tab-trigger" data-target="playground">Play Mini-Game</a>
+                        <div class="bento-grid">
+                            <!-- Main Hero Bento Block -->
+                            <div class="bento-card bento-main">
+                                <div>
+                                    <div class="hero-status"><span class="pulse-dot"></span>Active Portfolio Workstation</div>
+                                    <h1 class="welcome-title">Yuvan Raaju R</h1>
+                                    <div class="welcome-roles">
+                                        Android Developer <span class="accent-text">&</span> ML Specialist
+                                    </div>
+                                    <p style="font-size: 1.05rem; margin-bottom: 0;">
+                                        Final-year MCA student @ PSG College of Technology. Architecting on-device intelligence pipeline models and premium native Android systems.
+                                    </p>
+                                </div>
+                                <div class="btn-container">
+                                    <a href="#" class="btn btn-primary tab-trigger" data-target="projects">Explore Projects</a>
+                                    <a href="#" class="btn btn-secondary tab-trigger" data-target="playground">Play Mini-Game</a>
+                                </div>
+                            </div>
+                            
+                            <!-- Stats Bento Block -->
+                            <div class="bento-stats">
+                                <div class="bento-card stat-card">
+                                    <div class="stat-number">06</div>
+                                    <div>
+                                        <div class="stat-label">Total repos</div>
+                                        <p style="font-size: 0.8rem; margin: 0; color: var(--text-muted);">Indexed in work.md</p>
+                                    </div>
+                                </div>
+                                <div class="bento-card stat-card">
+                                    <div class="stat-number">01</div>
+                                    <div>
+                                        <div class="stat-label">Publications</div>
+                                        <p style="font-size: 0.8rem; margin: 0; color: var(--text-muted);">PSG RC Research 2026</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -922,25 +1151,28 @@
                             <p>Hello! I'm Yuvan, a final-year MCA student at PSG College of Technology, Coimbatore. With a strong engineering foundation established during my BSc in IT at GRD College of Science, I specialize in building practical, high-impact mobile and intelligence solutions.</p>
                             <p>I focus intensely on the intersection of <strong>Mobile Development and Machine Learning</strong>. I build intelligent applications that execute localized ML model inference (using TensorFlow Lite) directly on mobile devices—ensuring complete user data privacy and removing latency constraints.</p>
                             <p>My academic research in synthetic content detection was published in <strong>PSG RC 2026</strong>. When I'm not writing Kotlin or tuning neural network pipelines, you can find me customizing my Linux workspace, configuring drivers, or experimenting with generative models like Stable Diffusion and Flux.</p>
+                            
+                            <p style="font-size: 0.85rem; font-style: italic; margin-top: 2rem;">💡 Try running commands in the terminal shell on the right! Type <code style="font-family:var(--font-mono); color:var(--accent-primary);">help</code> to view available actions.</p>
                         </div>
+                        
+                        <!-- Interactive Terminal Shell console -->
                         <div class="terminal-box">
-                            <div class="terminal-content">
-                                <div class="terminal-line"><span class="prompt">yuvan@device:~$</span><span class="cmd">cat profile.json</span></div>
-                                <div class="response">
-{<br>
-&nbsp;&nbsp;"name": "Yuvan Raaju R",<br>
-&nbsp;&nbsp;"location": "Coimbatore, Tamil Nadu",<br>
-&nbsp;&nbsp;"education": "MCA @ PSG College of Tech",<br>
-&nbsp;&nbsp;"contact": {<br>
-&nbsp;&nbsp;&nbsp;&nbsp;"email": "yuvanraaju123@gmail.com",<br>
-&nbsp;&nbsp;&nbsp;&nbsp;"phone": "+91 7708630755"<br>
-&nbsp;&nbsp;},<br>
-&nbsp;&nbsp;"interests": [<br>
-&nbsp;&nbsp;&nbsp;&nbsp;"Android Native", "On-device ML", "Full-Stack Web"<br>
-&nbsp;&nbsp;]<br>
-}
+                            <div class="terminal-bar">
+                                <div class="terminal-dots">
+                                    <span class="terminal-dot red"></span>
+                                    <span class="terminal-dot yellow"></span>
+                                    <span class="terminal-dot green"></span>
                                 </div>
-                                <div class="terminal-line"><span class="prompt">yuvan@device:~$</span><span class="cmd">_</span></div>
+                                <div class="terminal-title">zsh - guest@yuvan.dev</div>
+                            </div>
+                            <div class="terminal-body" id="term-body">
+                                <div class="terminal-output" id="term-out">Welcome to Yuvan's Interactive Portfolio Shell!
+Type 'help' to see available commands.
+</div>
+                                <div class="terminal-input-line">
+                                    <span class="prompt">guest@yuvan.dev:~$</span>
+                                    <input type="text" class="terminal-field" id="term-input" autocomplete="off" autofocus>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -949,14 +1181,13 @@
                 <!-- Projects Tab -->
                 <section class="editor-section" id="projects">
                     <h2>Selected Work</h2>
-                    <div class="projects-grid" style="margin-top: 1rem;">
+                    <p style="margin-bottom: 2rem;">Click any project card to open its detailed design case study tab inside the editor window!</p>
+                    <div class="projects-grid">
                         <!-- Project 1 (Flagship) -->
-                        <div class="project-card project-flagship">
+                        <div class="project-card project-flagship tab-trigger" data-target="case-deepsight">
                             <div class="project-header">
                                 <svg class="folder-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
-                                <a href="https://github.com/Yuvanrr/DeepSight" target="_blank" rel="noopener noreferrer" class="github-link" aria-label="GitHub Repository">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
-                                </a>
+                                <svg style="width: 20px; height: 20px; color: var(--text-muted);" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
                             </div>
                             <h3 class="project-title">DeepSight</h3>
                             <p class="project-desc">A privacy-first Android application for on-device deepfake and AI-generated content detection. Trained a MobileNetV3 image classifier locally (~88.94% accuracy) and converted it to TFLite. Built a CNN+LSTM video classifier and utilized the MediaProjection API with AccessibilityService for a real-time floating overlay scanning screen content locally.</p>
@@ -970,12 +1201,10 @@
                         </div>
 
                         <!-- Project 2 -->
-                        <div class="project-card">
+                        <div class="project-card tab-trigger" data-target="case-artlistener">
                             <div class="project-header">
                                 <svg class="folder-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
-                                <a href="https://github.com/Yuvanrr/ArtListener" target="_blank" rel="noopener noreferrer" class="github-link" aria-label="GitHub Repository">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
-                                </a>
+                                <svg style="width: 20px; height: 20px; color: var(--text-muted);" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
                             </div>
                             <h3 class="project-title">ArtListener</h3>
                             <p class="project-desc">An interactive indoor museum audio guide app providing audio descriptions of exhibits. Uses Wi-Fi SSID and RSSI signal strength data for indoor location detection to trigger automated, exhibit-linked multimedia playback.</p>
@@ -990,9 +1219,7 @@
                         <div class="project-card">
                             <div class="project-header">
                                 <svg class="folder-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
-                                <a href="https://github.com/Yuvanrr/BloodSync" target="_blank" rel="noopener noreferrer" class="github-link" aria-label="GitHub Repository">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
-                                </a>
+                                <svg style="width: 20px; height: 20px; color: var(--text-muted);" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
                             </div>
                             <h3 class="project-title">BloodSync</h3>
                             <p class="project-desc">A mobile application to connect blood donors directly with recipients. Handles donor registration, blood group filtering, and request management.</p>
@@ -1007,9 +1234,7 @@
                         <div class="project-card">
                             <div class="project-header">
                                 <svg class="folder-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
-                                <a href="https://github.com/Yuvanrr/TechConnect" target="_blank" rel="noopener noreferrer" class="github-link" aria-label="GitHub Repository">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
-                                </a>
+                                <svg style="width: 20px; height: 20px; color: var(--text-muted);" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
                             </div>
                             <h3 class="project-title">TechConnect</h3>
                             <p class="project-desc">A robust event management web platform for managing college tech events, handling user registration, event listings, and participation tracking.</p>
@@ -1024,9 +1249,7 @@
                         <div class="project-card">
                             <div class="project-header">
                                 <svg class="folder-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
-                                <a href="https://github.com/Yuvanrr/weatherpapp" target="_blank" rel="noopener noreferrer" class="github-link" aria-label="GitHub Repository">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
-                                </a>
+                                <svg style="width: 20px; height: 20px; color: var(--text-muted);" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
                             </div>
                             <h3 class="project-title">weatherpapp</h3>
                             <p class="project-desc">A clean, responsive weather application for tracking real-time meteorological conditions and forecasting, built to practice API integrations, responsive grid designs, and web hosting structures.</p>
@@ -1042,9 +1265,7 @@
                         <div class="project-card">
                             <div class="project-header">
                                 <svg class="folder-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
-                                <a href="https://github.com/Yuvanrr/Devops-lab" target="_blank" rel="noopener noreferrer" class="github-link" aria-label="GitHub Repository">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
-                                </a>
+                                <svg style="width: 20px; height: 20px; color: var(--text-muted);" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
                             </div>
                             <h3 class="project-title">Devops-lab</h3>
                             <p class="project-desc">A hands-on reference laboratory and tutorial repository designed to practice Git version control commands, branching workflows, and fundamental DevOps practices.</p>
@@ -1052,6 +1273,117 @@
                                 <span class="tech-tag">Git</span>
                                 <span class="tech-tag">DevOps</span>
                                 <span class="tech-tag">Shell Scripting</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Case Study: DeepSight Tab -->
+                <section class="editor-section" id="case-deepsight">
+                    <h2 class="case-study-title">Case Study: DeepSight</h2>
+                    <div class="case-study-grid">
+                        <div>
+                            <p><strong>DeepSight</strong> addresses the growing security challenges of AI-synthesized deepfakes. It operates as a local, privacy-first detector on Android devices, ensuring no user data leaves the hardware boundary.</p>
+                            
+                            <h3 style="margin: 1.5rem 0 1rem 0;">System Architecture</h3>
+                            <div class="architecture-flow">
+┌───────────────────┐      ┌─────────────────────────┐      ┌──────────────────┐
+│  MediaProjection  │ ───> │  Accessibility Service  │ ───> │ Facial Detection │
+│ (Screen Capture)  │      │   (Overlay Lifecycle)   │      │ (Coord Crop Grid)│
+└───────────────────┘      └─────────────────────────┘      └──────────────────┘
+                                                                      │
+                                                                      ▼
+┌───────────────────┐      ┌─────────────────────────┐      ┌──────────────────┐
+│ Trigger Overlay   │ <─── │   MobileNetV3 TFLite    │ <─── │ Normalization    │
+│  (Real-time Warn) │      │  (On-Device Classifier) │      │  & Tensor Buff   │
+└───────────────────┘      └─────────────────────────┘      └──────────────────┘</div>
+
+                            <h3 style="margin: 1.5rem 0 1rem 0;">Key Solutions & Innovations</h3>
+                            <p>Running real-time image evaluation on a mobile SoC is highly resource-constrained. Standard CNN-LSTM models require high GPU capabilities and memory bandwidth. To resolve this, I compressed the custom-trained weights and loaded a serialized flatbuffer representation using the TensorFlow Lite Interpreter API.</p>
+                            <p>By implementing asynchronous channel streams, frame acquisition runs in a separate native worker thread, allowing the main rendering thread to run smooth Jetpack Compose UI loops without UI frame drops.</p>
+                        </div>
+                        
+                        <div>
+                            <div class="bento-card" style="padding: 1.5rem;">
+                                <h4 style="font-family: var(--font-mono); font-size: 0.85rem; text-transform: uppercase; color: var(--accent-primary); margin-bottom: 1rem;">Model Spec Sheet</h4>
+                                <table class="meta-spec-table">
+                                    <tr>
+                                        <td class="label">Accuracy</td>
+                                        <td class="value">88.94% Test Acc</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="label">Precision</td>
+                                        <td class="value">0.892 (Local CNN)</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="label">Flops</td>
+                                        <td class="value">~0.53 Billion</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="label">Size</td>
+                                        <td class="value">14.6 MB (TFLite quantized)</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="label">Inference</td>
+                                        <td class="value">~14ms on Hexagon DSP</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Case Study: ArtListener Tab -->
+                <section class="editor-section" id="case-artlistener">
+                    <h2 class="case-study-title">Case Study: ArtListener</h2>
+                    <div class="case-study-grid">
+                        <div>
+                            <p><strong>ArtListener</strong> is a context-aware museum audio guide application designed to automatically fetch and play descriptions of nearby museum exhibits based on indoor position detection signals.</p>
+                            
+                            <h3 style="margin: 1.5rem 0 1rem 0;">RSSI Trilateration</h3>
+                            <div class="architecture-flow">
+┌──────────────┐          ┌──────────────┐          ┌──────────────┐
+│  Hotspot A   │          │  Hotspot B   │          │  Hotspot C   │
+│ (SSID_Ex_1)  │          │ (SSID_Ex_2)  │          │ (SSID_Ex_3)  │
+└──────────────┘          └──────────────┘          └──────────────┘
+       │                         │                         │
+       ▼ (RSSI signal dBm)       ▼ (RSSI signal dBm)       ▼ (RSSI signal dBm)
+┌──────────────────────────────────────────────────────────────────────────┐
+│                     ArtListener Location Engine Engine                   │
+│          d = 10 ^ ((Measured Power - RSSI) / (10 * Path Loss Constant))   │
+└──────────────────────────────────────────────────────────────────────────┘
+                                 │
+                                 ▼
+                    ┌──────────────────────────┐
+                    │  Multimedia Audio Trigger│
+                    └──────────────────────────┘</div>
+
+                            <h3 style="margin: 1.5rem 0 1rem 0;">Key Solutions & Innovations</h3>
+                            <p>GPS signals do not penetrate building interiors, making them unusable for indoor localization. Standard Bluetooth Beacon solutions require expensive dedicated hardware installation. ArtListener circumvents this by scanning existing institutional Wi-Fi networks.</p>
+                            <p>By measuring the Received Signal Strength Indicator (RSSI) of exhibit-adjacent access points and applying a logarithmic distance attenuation formula, the application calculates proximity bounds within a 1.5-meter accuracy window, triggering the correct audio guides synchronously.</p>
+                        </div>
+                        
+                        <div>
+                            <div class="bento-card" style="padding: 1.5rem;">
+                                <h4 style="font-family: var(--font-mono); font-size: 0.85rem; text-transform: uppercase; color: var(--accent-primary); margin-bottom: 1rem;">System Spec Sheet</h4>
+                                <table class="meta-spec-table">
+                                    <tr>
+                                        <td class="label">Localisation</td>
+                                        <td class="value">Wi-Fi RSSI Trilateration</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="label">Resolution</td>
+                                        <td class="value">~1.5 Meters indoors</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="label">Framework</td>
+                                        <td class="value">Flutter (iOS & Android)</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="label">Audio Latency</td>
+                                        <td class="value">&lt; 150ms trigger bounds</td>
+                                    </tr>
+                                </table>
                             </div>
                         </div>
                     </div>
@@ -1188,7 +1520,7 @@
 
         // Cursor spotlight tracking
         document.addEventListener('mousemove', e => {
-            const cards = document.querySelectorAll('.project-card, .contact-card');
+            const cards = document.querySelectorAll('.project-card, .contact-card, .bento-card');
             cards.forEach(card => {
                 const rect = card.getBoundingClientRect();
                 const x = e.clientX - rect.left;
@@ -1214,6 +1546,11 @@
             const activeExplorer = document.querySelector(`.explorer-item[data-target="${targetId}"]`);
             const activeTab = document.querySelector(`.editor-tab[data-target="${targetId}"]`);
             const activeSection = document.getElementById(targetId);
+
+            // Make case study tabs visible in the header if they are activated
+            if (targetId.startsWith('case-')) {
+                if (activeTab) activeTab.style.display = 'flex';
+            }
 
             if (activeExplorer) activeExplorer.classList.add('active');
             if (activeTab) activeTab.classList.add('active');
@@ -1258,6 +1595,61 @@
             sidebar.classList.toggle('open');
         });
 
+        // ==========================================
+        // INTERACTIVE TERMINAL ENGINE
+        // ==========================================
+        const termInput = document.getElementById('term-input');
+        const termOut = document.getElementById('term-out');
+        const termBody = document.getElementById('term-body');
+
+        const INTERACTIVE_COMMANDS = {
+            help: 'Available commands:\n  help         - Display help options\n  bio          - Show Yuvan\'s biographical details\n  skills       - Output skills stack levels\n  run-model    - Local simulation test run of quantization loader\n  clear        - Clear terminal history\n  source       - Output primary GitHub URL profile link',
+            bio: 'Yuvan Raaju R\nFinal-year MCA student at PSG College of Technology, Coimbatore.\nSpecialization: Android Jetpack Compose development and On-Device TFLite network implementations.\nPublications: Synthetic content detection research (PSG RC 2026).',
+            skills: 'Kotlin (Compose)    [██████████████████░] 90%\nPython              [█████████████████░░] 85%\nDart/Flutter        [████████████████░░░] 80%\nJavaScript/Java     [████████████████░░░] 80%\nOn-Device ML        [█████████████████░░] 85%',
+            'run-model': 'Initializing TFLite Interpreter...\n-> Core allocated: Hexagon NPU/DSP delegate\n-> Loading quantized flatbuffer DeepSight_v3.tflite (14.6MB) [OK]\n-> Feeding test frame tensor [1, 224, 224, 3]...\n-> Forward propagation completed in 14.2ms.\n-> Prediction: AI_SYNTHETIC_DEEPFAKE (Confidence: 98.42%)\n[STATUS] Inference Complete. Zero local buffer leakage.',
+            source: 'Primary Host Link: https://github.com/Yuvanrr'
+        };
+
+        termInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const cmdText = termInput.value.trim().toLowerCase();
+                termInput.value = '';
+
+                if (!cmdText) return;
+
+                // Create shell history output line
+                const cmdLine = document.createElement('div');
+                cmdLine.innerHTML = `<span class="prompt">guest@yuvan.dev:~$</span><span style="color:#ffffff">${cmdText}</span>`;
+                termOut.appendChild(cmdLine);
+
+                const responseLine = document.createElement('div');
+                responseLine.style.marginTop = '4px';
+                responseLine.style.marginBottom = '8px';
+
+                if (cmdText === 'clear') {
+                    termOut.innerHTML = '';
+                } else if (INTERACTIVE_COMMANDS[cmdText]) {
+                    responseLine.innerText = INTERACTIVE_COMMANDS[cmdText];
+                    termOut.appendChild(responseLine);
+                } else if (cmdText.startsWith('sudo')) {
+                    responseLine.innerHTML = `<span style="color:#ef4444">[sudo] password for guest: *******\nPermission denied. guest is not in the sudoers list. This incident has been logged. 😉</span>`;
+                    termOut.appendChild(responseLine);
+                } else {
+                    responseLine.innerText = `zsh: command not found: ${cmdText}. Type 'help' to see options.`;
+                    responseLine.style.color = '#ef4444';
+                    termOut.appendChild(responseLine);
+                }
+
+                // Auto scroll to bottom
+                termBody.scrollTop = termBody.scrollHeight;
+            }
+        });
+
+        // Keep input focused when clicking inside terminal box
+        document.querySelector('.terminal-box').addEventListener('click', () => {
+            termInput.focus();
+        });
+
         // Ambient Floating Particles background
         const canvas = document.getElementById('ambient-canvas');
         const ctx = canvas.getContext('2d');
@@ -1296,7 +1688,6 @@
                 this.x += this.vx;
                 this.y += this.vy;
 
-                // Mouse drift interaction
                 if (mouse.x !== null && mouse.y !== null) {
                     const dx = this.x - mouse.x;
                     const dy = this.y - mouse.y;
@@ -1375,26 +1766,16 @@
 
         let currentLevel = 1;
         let gameGrid = [];
-        let connections = []; // Track connected nodes
+        let connections = []; 
 
-        // Node Types:
-        // 'I' - Input (start node)
-        // 'O' - Output (end node)
-        // 'H' - Horizontal straight line (connects L-R)
-        // 'V' - Vertical straight line (connects T-B)
-        // 'C' - Corner (connects 2 adjacent directions)
-        // 'B' - Blocked (dead node)
-
-        // Standard level grid blueprints
         const levels = {
             1: {
                 name: "Level 1: Simple Perceptron",
                 accuracy: "98.7% Accuracy reached!",
-                // 4x4 Grid blueprint
                 layout: [
-                    { type: 'I', rot: 0, r: 0, c: 0 }, // Input (Row 0, Col 0)
-                    { type: 'H', rot: 90, r: 0, c: 1 }, // H pipe (rotated)
-                    { type: 'C', rot: 0, r: 0, c: 2 },  // Corner
+                    { type: 'I', rot: 0, r: 0, c: 0 }, 
+                    { type: 'H', rot: 90, r: 0, c: 1 }, 
+                    { type: 'C', rot: 0, r: 0, c: 2 },  
                     { type: 'B', rot: 0, r: 0, c: 3 },
                     
                     { type: 'B', rot: 0, r: 1, c: 0 },
@@ -1410,7 +1791,7 @@
                     { type: 'B', rot: 0, r: 3, c: 0 },
                     { type: 'C', rot: 0, r: 3, c: 1 },
                     { type: 'H', rot: 0, r: 3, c: 2 },
-                    { type: 'O', rot: 0, r: 3, c: 3 }  // Output (Row 3, Col 3)
+                    { type: 'O', rot: 0, r: 3, c: 3 }  
                 ]
             },
             2: {
@@ -1465,28 +1846,22 @@
             }
         };
 
-        // Get allowed connection directions for a node type based on its current rotation angle.
-        // Rotations are: 0, 90, 180, 270 degrees.
-        // Directions: 'U' (Up), 'D' (Down), 'L' (Left), 'R' (Right).
         function getConnectors(node) {
             const { type, rot } = node;
             if (type === 'B') return [];
             
-            if (type === 'I') return ['R']; // Input node only sends to the right
-            if (type === 'O') return ['L']; // Output node only accepts from the left
+            if (type === 'I') return ['R']; 
+            if (type === 'O') return ['L']; 
             
             if (type === 'H') {
-                // Horizontal straight connects left/right when rot=0/180, top/bottom when rot=90/270
                 return (rot === 0 || rot === 180) ? ['L', 'R'] : ['U', 'D'];
             }
             
             if (type === 'V') {
-                // Vertical straight connects top/bottom when rot=0/180, left/right when rot=90/270
                 return (rot === 0 || rot === 180) ? ['U', 'D'] : ['L', 'R'];
             }
             
             if (type === 'C') {
-                // Corner pipe default (rot=0) connects Right and Down (└ Shape)
                 if (rot === 0) return ['R', 'D'];
                 if (rot === 90) return ['D', 'L'];
                 if (rot === 180) return ['L', 'U'];
@@ -1495,7 +1870,6 @@
             return [];
         }
 
-        // Generate SVG markup based on node type
         function getSvgForNode(type) {
             if (type === 'I') {
                 return `<svg class="node-svg" viewBox="0 0 80 80">
@@ -1535,7 +1909,6 @@
             return '';
         }
 
-        // Initialize Level Grid
         function loadLevel(levelNum) {
             currentLevel = levelNum;
             gameGrid = [];
@@ -1550,7 +1923,6 @@
                 cell.className = 'node-cell';
                 cell.dataset.index = index;
 
-                // Set node properties
                 const node = {
                     index: index,
                     type: b.type,
@@ -1570,13 +1942,11 @@
 
                 cell.innerHTML = getSvgForNode(b.type);
                 
-                // Apply initial rotation to SVG container inside the node
                 const svg = cell.querySelector('.node-svg');
                 if (svg && b.type !== 'I' && b.type !== 'O') {
                     svg.style.transform = `rotate(${b.rot}deg)`;
                 }
 
-                // Node click event
                 if (b.type !== 'I' && b.type !== 'O' && b.type !== 'B') {
                     cell.addEventListener('click', () => rotateNode(node));
                 }
@@ -1588,7 +1958,6 @@
             checkPath();
         }
 
-        // Rotate Node 90deg clockwise
         function rotateNode(node) {
             node.rot = (node.rot + 90) % 360;
             const svg = node.element.querySelector('.node-svg');
@@ -1596,7 +1965,6 @@
                 svg.style.transform = `rotate(${node.rot}deg)`;
             }
             
-            // Add subtle click animation
             node.element.style.transform = 'scale(0.9)';
             setTimeout(() => {
                 node.element.style.transform = '';
@@ -1605,9 +1973,7 @@
             checkPath();
         }
 
-        // Perform DFS from input to detect connection to output node
         function checkPath() {
-            // Reset all cell connections classes
             gameGrid.forEach(node => {
                 node.element.classList.remove('connected');
                 node.element.classList.remove('active-stream');
@@ -1615,7 +1981,7 @@
 
             const visited = new Set();
             const connectedNodes = [];
-            const queue = [0]; // Index of input node
+            const queue = [0]; 
 
             while (queue.length > 0) {
                 const currentIdx = queue.shift();
@@ -1627,23 +1993,20 @@
 
                 const currentConnectors = getConnectors(currentNode);
 
-                // Find adjacent grid items (4-neighborhood)
                 const adjacents = [
-                    { r: currentNode.r - 1, c: currentNode.c, dir: 'U', opposite: 'D' }, // Up
-                    { r: currentNode.r + 1, c: currentNode.c, dir: 'D', opposite: 'U' }, // Down
-                    { r: currentNode.r, c: currentNode.c - 1, dir: 'L', opposite: 'R' }, // Left
-                    { r: currentNode.r, c: currentNode.c + 1, dir: 'R', opposite: 'L' }  // Right
+                    { r: currentNode.r - 1, c: currentNode.c, dir: 'U', opposite: 'D' }, 
+                    { r: currentNode.r + 1, c: currentNode.c, dir: 'D', opposite: 'U' }, 
+                    { r: currentNode.r, c: currentNode.c - 1, dir: 'L', opposite: 'R' }, 
+                    { r: currentNode.r, c: currentNode.c + 1, dir: 'R', opposite: 'L' }  
                 ];
 
                 adjacents.forEach(adj => {
-                    // Check array bounds
                     if (adj.r >= 0 && adj.r < 4 && adj.c >= 0 && adj.c < 4) {
                         const targetNode = gameGrid.find(n => n.r === adj.r && n.c === adj.c);
                         
                         if (targetNode && targetNode.type !== 'B' && !visited.has(targetNode.index)) {
                             const targetConnectors = getConnectors(targetNode);
 
-                            // Check if connection terminals align between current and target nodes
                             if (currentConnectors.includes(adj.dir) && targetConnectors.includes(adj.opposite)) {
                                 queue.push(targetNode.index);
                             }
@@ -1652,15 +2015,12 @@
                 });
             }
 
-            // Visual effect: light up connected pathways
             connectedNodes.forEach(node => {
                 node.element.classList.add('connected');
             });
 
-            // If output node is visited, connection path is complete!
-            const outputIndex = 15; // Bottom-Right index
+            const outputIndex = 15; 
             if (visited.has(outputIndex)) {
-                // Successful compilation
                 statusElement.textContent = "Forward pass successful. Model compiling...";
                 connectedNodes.forEach((node, idx) => {
                     setTimeout(() => {
@@ -1668,7 +2028,6 @@
                     }, idx * 60);
                 });
 
-                // Display success overlay
                 setTimeout(() => {
                     successStats.textContent = levels[currentLevel].accuracy;
                     successOverlay.classList.add('show');
@@ -1678,7 +2037,6 @@
             }
         }
 
-        // Level navigation triggers
         levelBtns.forEach(btn => {
             btn.addEventListener('click', () => {
                 levelBtns.forEach(b => b.classList.remove('active'));
@@ -1687,12 +2045,10 @@
             });
         });
 
-        // Reset and next buttons
         resetBtn.addEventListener('click', () => {
             loadLevel(currentLevel);
         });
 
-        // Init Game Board (Level 1)
         loadLevel(1);
     </script>
 </body>
