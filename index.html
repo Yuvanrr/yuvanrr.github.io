@@ -11,13 +11,14 @@
     <style>
         :root {
             --bg-color: #08090f;
-            --surface-color: rgba(18, 20, 32, 0.75);
-            --surface-hover: rgba(28, 30, 48, 0.85);
+            --sidebar-color: #0c0d16;
+            --surface-color: rgba(18, 20, 32, 0.7);
+            --surface-hover: rgba(28, 30, 48, 0.8);
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --accent-primary: #6366f1;
             --accent-secondary: #a855f7;
-            --accent-glow: rgba(99, 102, 241, 0.15);
+            --accent-gradient: linear-gradient(135deg, #6366f1, #a855f7);
             --border-color: rgba(255, 255, 255, 0.06);
             --border-hover: rgba(99, 102, 241, 0.3);
             
@@ -25,7 +26,7 @@
             --font-body: 'Inter', sans-serif;
             --font-mono: 'JetBrains Mono', monospace;
             
-            --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            --transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         * {
@@ -34,70 +35,242 @@
             box-sizing: border-box;
         }
 
-        html {
-            scroll-behavior: smooth;
-        }
-
         body {
             font-family: var(--font-body);
             background-color: var(--bg-color);
-            background-image: 
-                radial-gradient(circle at 50% -20%, rgba(99, 102, 241, 0.18), transparent 70%),
-                radial-gradient(circle at 10% 80%, rgba(168, 85, 247, 0.1), transparent 50%),
-                radial-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 0);
-            background-size: 100% 100%, 100% 100%, 32px 32px;
             color: var(--text-main);
-            line-height: 1.6;
-            overflow-x: hidden;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
             position: relative;
         }
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
+        /* Ambient background grid */
+        #ambient-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        /* IDE Layout */
+        .ide-container {
+            display: flex;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        /* Sidebar */
+        .ide-sidebar {
+            width: 260px;
+            background-color: var(--sidebar-color);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            transition: var(--transition);
+        }
+
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .sidebar-title {
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: 1.1rem;
+            letter-spacing: -0.5px;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .explorer-section {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 1rem 0;
+        }
+
+        .explorer-folder {
+            padding: 0.5rem 1.5rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .explorer-list {
+            list-style: none;
+        }
+
+        .explorer-item {
+            padding: 0.65rem 1.5rem 0.65rem 2.25rem;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            transition: var(--transition);
+        }
+
+        .explorer-item:hover {
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .explorer-item.active {
+            color: var(--text-main);
+            background: rgba(99, 102, 241, 0.08);
+            border-left: 2px solid var(--accent-primary);
+            padding-left: calc(2.25rem - 2px);
+        }
+
+        /* File extension icon styling */
+        .file-icon {
+            font-size: 0.9rem;
+            font-weight: bold;
+            width: 18px;
+            text-align: center;
+        }
+        .file-icon.json { color: #f59e0b; }
+        .file-icon.md { color: #3b82f6; }
+        .file-icon.py { color: #10b981; }
+        .file-icon.js { color: #a855f7; }
+        .file-icon.sh { color: #cbd5e1; }
+
+        /* Main Workspace Pane */
+        .ide-workspace {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: rgba(8, 9, 15, 0.4);
+            backdrop-filter: blur(8px);
+        }
+
+        /* Editor Tabs Header */
+        .ide-tabs-bar {
+            height: 48px;
+            background: rgba(12, 13, 22, 0.5);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            overflow-x: auto;
+            scrollbar-width: none; /* Firefox */
+        }
+        .ide-tabs-bar::-webkit-scrollbar {
+            display: none; /* Safari/Chrome */
+        }
+
+        .editor-tab {
+            padding: 0 1.5rem;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            border-right: 1px solid var(--border-color);
+            cursor: pointer;
+            background: rgba(8, 9, 15, 0.2);
+            transition: var(--transition);
+            user-select: none;
+            position: relative;
+        }
+
+        .editor-tab:hover {
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .editor-tab.active {
+            color: var(--text-main);
+            background: var(--bg-color);
+            border-bottom: none;
+        }
+
+        .editor-tab.active::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: var(--accent-gradient);
+        }
+
+        /* Editor Viewport */
+        .ide-editor-viewport {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 3rem 2.5rem;
+        }
+
+        /* Custom Scrollbar for editor */
+        .ide-editor-viewport::-webkit-scrollbar {
             width: 8px;
         }
-        ::-webkit-scrollbar-track {
-            background: var(--bg-color);
+        .ide-editor-viewport::-webkit-scrollbar-track {
+            background: transparent;
         }
-        ::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.1);
+        .ide-editor-viewport::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.08);
             border-radius: 4px;
         }
-        ::-webkit-scrollbar-thumb:hover {
+        .ide-editor-viewport::-webkit-scrollbar-thumb:hover {
             background: var(--accent-primary);
         }
 
-        /* Typography */
-        h1, h2, h3, h4 {
+        /* Section visibility states */
+        .editor-section {
+            display: none;
+            opacity: 0;
+            transform: translateY(15px);
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .editor-section.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Global UI Elements */
+        h1, h2, h3 {
             font-family: var(--font-display);
             font-weight: 700;
             letter-spacing: -0.02em;
         }
 
-        h1 {
-            font-size: clamp(3rem, 7vw, 5.5rem);
-            font-weight: 800;
-            line-height: 1.1;
-            background: linear-gradient(to right, #ffffff, #e2e8f0, #94a3b8);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 1.5rem;
-        }
-
         h2 {
-            font-size: clamp(2rem, 4vw, 2.75rem);
-            margin-bottom: 3rem;
+            font-size: 2.25rem;
+            margin-bottom: 2.5rem;
             position: relative;
             display: inline-block;
         }
         h2::after {
             content: '';
             position: absolute;
-            bottom: -8px;
+            bottom: -6px;
             left: 0;
-            width: 40px;
+            width: 32px;
             height: 3px;
-            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            background: var(--accent-gradient);
             border-radius: 2px;
         }
 
@@ -105,97 +278,12 @@
             font-size: 1.05rem;
             margin-bottom: 1.5rem;
             color: var(--text-muted);
-            font-weight: 400;
+            line-height: 1.7;
         }
 
-        a {
-            color: var(--text-main);
-            text-decoration: none;
-            transition: var(--transition);
-        }
-
-        /* Layout */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 2.5rem;
-        }
-
-        section {
-            padding: 8rem 0;
-        }
-
-        /* Canvas Background */
-        #matrix-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: -1;
-            opacity: 0.7;
-            pointer-events: none;
-        }
-
-        /* Nav */
-        header {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            background: rgba(8, 9, 15, 0.75);
-            backdrop-filter: blur(12px);
-            z-index: 100;
-            border-bottom: 1px solid var(--border-color);
-            transition: var(--transition);
-        }
-
-        nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            height: 80px;
-        }
-
-        .logo {
-            font-family: var(--font-display);
-            font-weight: 800;
-            font-size: 1.4rem;
-            letter-spacing: -0.5px;
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .logo span {
-            color: var(--text-main);
-            -webkit-text-fill-color: initial;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 2.5rem;
-            list-style: none;
-        }
-
-        .nav-links a {
-            font-size: 0.9rem;
-            font-weight: 500;
-            color: var(--text-muted);
-            position: relative;
-        }
-        .nav-links a:hover {
-            color: var(--text-main);
-        }
-
-        /* Hero */
-        #hero {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            padding-top: 80px;
-        }
-
-        .hero-content {
-            max-width: 800px;
+        /* Welcome Dashboard */
+        .welcome-hero {
+            padding: 3rem 0;
         }
 
         .hero-status {
@@ -207,10 +295,8 @@
             background: rgba(255, 255, 255, 0.03);
             font-size: 0.85rem;
             font-weight: 500;
-            letter-spacing: 0.5px;
-            margin-bottom: 2rem;
             border-radius: 9999px;
-            backdrop-filter: blur(8px);
+            margin-bottom: 2.5rem;
         }
 
         .pulse-dot {
@@ -234,16 +320,32 @@
             100% { transform: scale(3); opacity: 0; }
         }
 
-        .hero-roles {
-            font-size: clamp(1.5rem, 3.5vw, 2.25rem);
+        .welcome-title {
+            font-size: clamp(2.5rem, 5vw, 4.5rem);
+            font-weight: 800;
+            line-height: 1.15;
+            background: linear-gradient(to right, #ffffff, #e2e8f0, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1.5rem;
+        }
+
+        .welcome-roles {
+            font-size: 1.75rem;
             font-weight: 700;
-            color: var(--text-main);
             margin-bottom: 2rem;
         }
         .accent-text {
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            background: var(--accent-gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+        }
+
+        .btn-container {
+            display: flex;
+            gap: 1rem;
+            margin-top: 3rem;
+            flex-wrap: wrap;
         }
 
         .btn {
@@ -266,7 +368,6 @@
             border: none;
             box-shadow: 0 4px 20px rgba(99, 102, 241, 0.25);
         }
-
         .btn-primary:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 24px rgba(99, 102, 241, 0.4);
@@ -276,26 +377,18 @@
             background: transparent;
             color: var(--text-main);
             border: 1px solid var(--border-color);
-            margin-left: 1.25rem;
         }
-
         .btn-secondary:hover {
             background: rgba(255, 255, 255, 0.03);
             border-color: var(--text-main);
         }
 
-        /* About */
+        /* About / Profile styling */
         .about-grid {
             display: grid;
             grid-template-columns: 1.2fr 1fr;
-            gap: 5rem;
+            gap: 4rem;
             align-items: center;
-        }
-
-        .about-text p {
-            font-size: 1.1rem;
-            margin-bottom: 1.75rem;
-            line-height: 1.7;
         }
 
         .terminal-box {
@@ -305,8 +398,9 @@
             padding: 1.75rem;
             position: relative;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(10px);
-            overflow: hidden;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: #cbd5e1;
         }
         .terminal-box::before {
             content: "";
@@ -321,43 +415,37 @@
         }
 
         .terminal-content {
-            font-family: var(--font-mono);
-            font-size: 0.9rem;
-            color: #cbd5e1;
             margin-top: 1.5rem;
         }
-        
-        .terminal-line { margin-bottom: 0.75rem; }
+        .terminal-line { margin-bottom: 0.5rem; }
         .prompt { color: #a855f7; margin-right: 0.5rem; }
-        .cmd { color: #f8fafc; font-weight: 500; }
-        .response { color: #a5b4fc; display: block; margin-top: 0.5rem; margin-bottom: 1rem; line-height: 1.6; }
+        .cmd { color: #f8fafc; }
+        .response { color: #a5b4fc; display: block; margin-top: 0.5rem; margin-bottom: 0.5rem; line-height: 1.5; }
 
-        /* Projects */
+        /* Projects Section */
         .projects-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-            gap: 2rem;
-            margin-top: 1.5rem;
+            grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+            gap: 1.5rem;
         }
 
         .project-card {
             background: var(--surface-color);
             border: 1px solid var(--border-color);
             border-radius: 12px;
-            padding: 2.5rem 2rem;
+            padding: 2.25rem 1.75rem;
             transition: var(--transition);
             position: relative;
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            backdrop-filter: blur(10px);
         }
 
         .project-card::after {
             content: '';
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: radial-gradient(800px circle at var(--mouse-x, 0px) var(--mouse-y, 0px), rgba(99, 102, 241, 0.08), transparent 40%);
+            background: radial-gradient(600px circle at var(--mouse-x, 0px) var(--mouse-y, 0px), rgba(99, 102, 241, 0.08), transparent 40%);
             z-index: 1;
             pointer-events: none;
             transition: opacity 0.5s ease;
@@ -367,19 +455,19 @@
             transform: translateY(-4px);
             border-color: var(--border-hover);
             background: var(--surface-hover);
-            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.05);
+            box-shadow: 0 10px 24px rgba(99, 102, 241, 0.04);
         }
 
         .project-flagship {
             border-color: rgba(99, 102, 241, 0.25);
-            background: linear-gradient(180deg, rgba(99, 102, 241, 0.03) 0%, transparent 100%), var(--surface-color);
+            background: linear-gradient(180deg, rgba(99, 102, 241, 0.02) 0%, transparent 100%), var(--surface-color);
         }
 
         .project-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 2rem;
+            margin-bottom: 1.75rem;
             z-index: 2;
         }
 
@@ -399,10 +487,9 @@
         }
 
         .project-title {
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             color: var(--text-main);
-            margin-bottom: 1rem;
-            font-family: var(--font-display);
+            margin-bottom: 0.75rem;
             font-weight: 700;
             z-index: 2;
         }
@@ -412,14 +499,14 @@
             font-size: 0.95rem;
             line-height: 1.6;
             flex-grow: 1;
-            margin-bottom: 2rem;
+            margin-bottom: 1.75rem;
             z-index: 2;
         }
 
         .tech-stack {
             display: flex;
             flex-wrap: wrap;
-            gap: 0.6rem;
+            gap: 0.5rem;
             z-index: 2;
         }
 
@@ -428,25 +515,22 @@
             font-family: var(--font-mono);
             background: rgba(255, 255, 255, 0.04);
             color: #a5b4fc;
-            padding: 0.35rem 0.75rem;
+            padding: 0.3rem 0.65rem;
             border-radius: 6px;
             border: 1px solid var(--border-color);
-            font-weight: 500;
         }
 
-        /* Skills */
+        /* Skills section styling */
         .skills-container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 4rem;
-            margin-top: 1.5rem;
+            gap: 3.5rem;
         }
         
         .skill-group h3 {
             color: var(--text-main);
             font-size: 1.25rem;
-            margin-bottom: 2rem;
-            font-weight: 600;
+            margin-bottom: 1.75rem;
         }
 
         .skill-item {
@@ -475,22 +559,22 @@
             border-radius: 3px;
             position: absolute;
             top: 0; left: 0;
-            box-shadow: 0 0 12px rgba(99, 102, 241, 0.5);
+            box-shadow: 0 0 10px rgba(99, 102, 241, 0.4);
             transform-origin: left;
             transform: scaleX(0);
-            transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .skill-tags-inline {
             display: flex;
             flex-wrap: wrap;
-            gap: 0.75rem;
+            gap: 0.65rem;
         }
         
         .skill-tag-outline {
             font-size: 0.85rem;
             border: 1px solid var(--border-color);
-            padding: 0.5rem 1rem;
+            padding: 0.45rem 0.9rem;
             border-radius: 8px;
             color: var(--text-muted);
             background: rgba(255, 255, 255, 0.02);
@@ -503,122 +587,346 @@
             transform: translateY(-2px);
         }
 
-        /* Contact */
-        #contact {
+        /* Playground / Game Section */
+        .playground-header {
             text-align: center;
-            padding: 10rem 0;
-            border-top: 1px solid var(--border-color);
+            margin-bottom: 2.5rem;
+        }
+        .playground-subtitle {
+            max-width: 600px;
+            margin: 0.5rem auto 1.5rem auto;
+        }
+
+        .level-selector {
+            display: flex;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+        }
+
+        .level-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 0.5rem 1.25rem;
+            font-family: var(--font-display);
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .level-btn:hover {
+            border-color: rgba(99, 102, 241, 0.5);
+            color: var(--text-main);
+        }
+        .level-btn.active {
+            background: var(--accent-gradient);
+            border-color: transparent;
+            color: #ffffff;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.2);
+        }
+
+        /* Game Board */
+        .game-card {
+            background: rgba(13, 14, 25, 0.8);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2.5rem;
+            max-width: 620px;
+            margin: 0 auto;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(4, 80px);
+            grid-template-rows: repeat(4, 80px);
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 2rem;
             position: relative;
         }
 
-        .contact-content {
-            max-width: 600px;
-            margin: 0 auto;
+        .node-cell {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            user-select: none;
+            position: relative;
+        }
+        .node-cell:hover:not(.blocked):not(.input-node):not(.output-node) {
+            background: rgba(99, 102, 241, 0.1);
+            border-color: rgba(99, 102, 241, 0.4);
+            transform: scale(1.02);
         }
 
-        .contact-content p {
-            margin-bottom: 3rem;
-            font-size: 1.15rem;
+        .node-cell.blocked {
+            background: rgba(255, 95, 86, 0.05);
+            border-color: rgba(255, 95, 86, 0.15);
+            color: rgba(255, 95, 86, 0.4);
+            cursor: not-allowed;
+        }
+
+        .node-cell.input-node {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: rgba(16, 185, 129, 0.4);
+            cursor: default;
+        }
+
+        .node-cell.output-node {
+            background: rgba(99, 102, 241, 0.1);
+            border-color: rgba(99, 102, 241, 0.4);
+            cursor: default;
+        }
+
+        /* SVG graphics inside nodes */
+        .node-svg {
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        /* Neon pulsing paths when connected */
+        .node-cell.connected .node-svg path {
+            stroke: #a855f7;
+            filter: drop-shadow(0 0 5px #a855f7);
+            stroke-width: 3.5px;
+            transition: all 0.3s ease;
+        }
+        
+        .node-cell.connected.active-stream .node-svg path {
+            stroke: #6366f1;
+            filter: drop-shadow(0 0 8px #6366f1);
+            stroke-width: 4px;
+        }
+
+        .game-status-text {
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            min-height: 1.5rem;
+            text-align: center;
+        }
+
+        .game-success-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(8, 9, 15, 0.95);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            text-align: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+            z-index: 10;
+        }
+        .game-success-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .success-icon {
+            color: #10b981;
+            width: 64px;
+            height: 64px;
+            margin-bottom: 1.5rem;
+            filter: drop-shadow(0 0 10px rgba(16, 185, 129, 0.4));
+        }
+
+        /* Contact Details Card */
+        .contact-card {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 4rem 3rem;
+            max-width: 680px;
+            margin: 0 auto;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            position: relative;
+        }
+
+        .contact-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(800px circle at var(--mouse-x, 0px) var(--mouse-y, 0px), rgba(99, 102, 241, 0.08), transparent 45%);
+            z-index: 1;
+            pointer-events: none;
         }
 
         .contact-links {
             display: flex;
             justify-content: center;
             gap: 1.5rem;
+            margin: 2.5rem 0 2rem 0;
+            z-index: 2;
+            position: relative;
         }
 
-        /* Footer */
-        footer {
-            text-align: center;
-            padding: 3rem 0;
-            font-size: 0.9rem;
+        .contact-meta {
+            font-size: 1rem;
             color: var(--text-muted);
-            border-top: 1px solid var(--border-color);
+            z-index: 2;
+            position: relative;
         }
 
-        /* Scroll Animations */
-        .fade-up {
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .fade-up.visible {
-            opacity: 1;
-            transform: translateY(0);
+        /* Mobile drawer toggle */
+        .mobile-nav-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-main);
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 150;
         }
 
-        /* Responsive */
-        @media (max-width: 992px) {
-            .about-grid { grid-template-columns: 1fr; gap: 4rem; }
+        /* Responsive styling */
+        @media (max-width: 900px) {
+            .about-grid {
+                grid-template-columns: 1fr;
+                gap: 3rem;
+            }
         }
 
         @media (max-width: 768px) {
-            h1 { font-size: 3rem; }
-            .nav-links { display: none; }
-            section { padding: 6rem 0; }
-            .contact-links { flex-direction: column; align-items: center; }
-            .btn { width: 100%; margin-left: 0 !important; margin-bottom: 1rem; }
-        }
-
-        /* SVG Icons */
-        svg {
-            fill: currentColor;
-            width: 1.5rem;
-            height: 1.5rem;
+            .ide-sidebar {
+                position: fixed;
+                left: -260px;
+                top: 0;
+                bottom: 0;
+                z-index: 100;
+                box-shadow: 10px 0 30px rgba(0,0,0,0.5);
+            }
+            .ide-sidebar.open {
+                left: 0;
+            }
+            .mobile-nav-toggle {
+                display: block;
+            }
+            .sidebar-header {
+                padding-right: 3.5rem; /* Avoid hamburger overlap */
+            }
+            .ide-editor-viewport {
+                padding: 2rem 1.5rem;
+            }
+            .contact-links {
+                flex-direction: column;
+                align-items: center;
+            }
+            .contact-links .btn {
+                width: 100%;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Matrix Canvas Background -->
-    <canvas id="matrix-canvas"></canvas>
+    <!-- Interactive soft particle background -->
+    <canvas id="ambient-canvas"></canvas>
 
-    <header>
-        <div class="container">
-            <nav>
-                <div class="logo">YUVAN<span>.</span></div>
-                <ul class="nav-links">
-                    <li><a href="#about">// about</a></li>
-                    <li><a href="#projects">// selected_work</a></li>
-                    <li><a href="#skills">// capabilities</a></li>
-                    <li><a href="#contact">// contact</a></li>
-                </ul>
-            </nav>
-        </div>
-    </header>
-
-    <main>
-        <section id="hero">
-            <div class="container hero-content">
-                <div class="hero-status fade-up"><span class="pulse-dot"></span>Available for Opportunities</div>
-                <h1 class="hero-glitch fade-up" style="transition-delay: 100ms;">Yuvan Raaju R</h1>
-                <div class="hero-roles fade-up" style="transition-delay: 200ms;">
-                    Android Developer <span class="accent-text">&</span> ML Engineer
-                </div>
-                <p class="fade-up" style="transition-delay: 300ms; max-width: 700px;">
-                    Final-year MCA student specializing in Android development and on-device ML, with research published in synthetic content detection (PSG RC 2026). Proficient in Kotlin, TFLite, and full-stack web development.
-                </p>
-                <div class="fade-up" style="transition-delay: 400ms; margin-top: 2rem; display: flex; flex-wrap: wrap; gap: 1rem;">
-                    <a href="#projects" class="btn btn-primary">Init.Projects()</a>
-                    <a href="https://github.com/Yuvanrr" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">sys.getGitHub()</a>
-                </div>
+    <div class="ide-container">
+        <!-- File Explorer Sidebar -->
+        <aside class="ide-sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-title">YUVAN.DEV</div>
+                <!-- Mobile Navigation Toggle inside workspace -->
             </div>
-        </section>
-
-        <section id="about" class="container fade-up">
-            <h2>About Me</h2>
-            <div class="about-grid">
-                <div class="about-text">
-                    <p>Hello! I'm Yuvan, a final-year MCA student at PSG College of Technology, Coimbatore. With a strong foundation from my BSc in IT at GRD College of Science, I specialize in building high-impact software engineering solutions.</p>
-                    <p>I thrive at the intersection of <strong>Mobile Development and Machine Learning</strong>. I focus on building intelligent Android applications that run localized ML inference (using TFLite) directly on-device—ensuring privacy and minimal latency. My research in synthetic content detection was published at PSG RC 2026.</p>
-                    <p>I also develop full-stack web projects and train/deploy ML models locally in a Linux environment. When I'm not coding in Kotlin or experimenting with neural networks, you'll find me tinkering with Linux systems, fixing drivers, or exploring generative AI models like Stable Diffusion and Flux.</p>
+            <div class="explorer-section">
+                <div class="explorer-folder">
+                    <svg style="width:14px; height:14px; fill:currentColor;" viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+                    workspace
                 </div>
-                <div class="terminal-box">
-                    <div class="terminal-content">
-                        <div class="terminal-line">
-                            <span class="prompt">yuvan@linux:~$</span>
-                            <span class="cmd">cat profile.json</span>
+                <ul class="explorer-list">
+                    <li class="explorer-item active" data-target="home">
+                        <span class="file-icon json">{}</span>welcome.json
+                    </li>
+                    <li class="explorer-item" data-target="about">
+                        <span class="file-icon json">{}</span>about.json
+                    </li>
+                    <li class="explorer-item" data-target="projects">
+                        <span class="file-icon md">M↓</span>work.md
+                    </li>
+                    <li class="explorer-item" data-target="skills">
+                        <span class="file-icon py">Py</span>skills.py
+                    </li>
+                    <li class="explorer-item" data-target="playground">
+                        <span class="file-icon js">JS</span>neural_link.js
+                    </li>
+                    <li class="explorer-item" data-target="contact">
+                        <span class="file-icon sh">sh</span>contact.sh
+                    </li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- Main workspace containing active editors -->
+        <main class="ide-workspace">
+            <!-- IDE top tab bar -->
+            <header class="ide-tabs-bar">
+                <!-- Mobile Menu Button -->
+                <button class="mobile-nav-toggle" id="menu-btn" style="padding: 0 1rem;" aria-label="Toggle Menu">
+                    <svg style="width:20px; height:20px; fill:currentColor;" viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+                </button>
+                <div class="editor-tab active" data-target="home"><span class="file-icon json">{}</span>welcome.json</div>
+                <div class="editor-tab" data-target="about"><span class="file-icon json">{}</span>about.json</div>
+                <div class="editor-tab" data-target="projects"><span class="file-icon md">M↓</span>work.md</div>
+                <div class="editor-tab" data-target="skills"><span class="file-icon py">Py</span>skills.py</div>
+                <div class="editor-tab" data-target="playground"><span class="file-icon js">JS</span>neural_link.js</div>
+                <div class="editor-tab" data-target="contact"><span class="file-icon sh">sh</span>contact.sh</div>
+            </header>
+
+            <!-- Active Viewport containing pages -->
+            <div class="ide-editor-viewport">
+                
+                <!-- Welcome Tab -->
+                <section class="editor-section active" id="home">
+                    <div class="welcome-hero">
+                        <div class="hero-status"><span class="pulse-dot"></span>Available for Opportunities</div>
+                        <h1 class="welcome-title">Yuvan Raaju R</h1>
+                        <div class="welcome-roles">
+                            Android Developer <span class="accent-text">&</span> ML Engineer
                         </div>
-                        <div class="response">
+                        <p style="max-width: 680px; font-size: 1.15rem; margin-bottom: 2.5rem;">
+                            Final-year MCA student specializing in Android development and on-device ML. Dedicated to building intelligent local applications, optimizing deep neural nets for mobile processors, and launching robust full-stack platforms.
+                        </p>
+                        <div class="btn-container">
+                            <a href="#" class="btn btn-primary tab-trigger" data-target="projects">Explore Work</a>
+                            <a href="#" class="btn btn-secondary tab-trigger" data-target="playground">Play Mini-Game</a>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- About Tab -->
+                <section class="editor-section" id="about">
+                    <h2>About Me</h2>
+                    <div class="about-grid" style="margin-top: 1rem;">
+                        <div class="about-text">
+                            <p>Hello! I'm Yuvan, a final-year MCA student at PSG College of Technology, Coimbatore. With a strong engineering foundation established during my BSc in IT at GRD College of Science, I specialize in building practical, high-impact mobile and intelligence solutions.</p>
+                            <p>I focus intensely on the intersection of <strong>Mobile Development and Machine Learning</strong>. I build intelligent applications that execute localized ML model inference (using TensorFlow Lite) directly on mobile devices—ensuring complete user data privacy and removing latency constraints.</p>
+                            <p>My academic research in synthetic content detection was published in <strong>PSG RC 2026</strong>. When I'm not writing Kotlin or tuning neural network pipelines, you can find me customizing my Linux workspace, configuring drivers, or experimenting with generative models like Stable Diffusion and Flux.</p>
+                        </div>
+                        <div class="terminal-box">
+                            <div class="terminal-content">
+                                <div class="terminal-line"><span class="prompt">yuvan@device:~$</span><span class="cmd">cat profile.json</span></div>
+                                <div class="response">
 {<br>
 &nbsp;&nbsp;"name": "Yuvan Raaju R",<br>
 &nbsp;&nbsp;"location": "Coimbatore, Tamil Nadu",<br>
@@ -631,218 +939,257 @@
 &nbsp;&nbsp;&nbsp;&nbsp;"Android Native", "On-device ML", "Full-Stack Web"<br>
 &nbsp;&nbsp;]<br>
 }
+                                </div>
+                                <div class="terminal-line"><span class="prompt">yuvan@device:~$</span><span class="cmd">_</span></div>
+                            </div>
                         </div>
-                        <div class="terminal-line">
-                            <span class="prompt">yuvan@linux:~$</span>
-                            <span class="cmd type-effect">_</span>
+                    </div>
+                </section>
+
+                <!-- Projects Tab -->
+                <section class="editor-section" id="projects">
+                    <h2>Selected Work</h2>
+                    <div class="projects-grid" style="margin-top: 1rem;">
+                        <!-- Project 1 (Flagship) -->
+                        <div class="project-card project-flagship">
+                            <div class="project-header">
+                                <svg class="folder-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                                <a href="https://github.com/Yuvanrr/DeepSight" target="_blank" rel="noopener noreferrer" class="github-link" aria-label="GitHub Repository">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                                </a>
+                            </div>
+                            <h3 class="project-title">DeepSight</h3>
+                            <p class="project-desc">A privacy-first Android application for on-device deepfake and AI-generated content detection. Trained a MobileNetV3 image classifier locally (~88.94% accuracy) and converted it to TFLite. Built a CNN+LSTM video classifier and utilized the MediaProjection API with AccessibilityService for a real-time floating overlay scanning screen content locally.</p>
+                            <div class="tech-stack">
+                                <span class="tech-tag">Kotlin</span>
+                                <span class="tech-tag">Compose</span>
+                                <span class="tech-tag">TFLite</span>
+                                <span class="tech-tag">MobileNetV3</span>
+                                <span class="tech-tag">Overlay</span>
+                            </div>
+                        </div>
+
+                        <!-- Project 2 -->
+                        <div class="project-card">
+                            <div class="project-header">
+                                <svg class="folder-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                                <a href="https://github.com/Yuvanrr/ArtListener" target="_blank" rel="noopener noreferrer" class="github-link" aria-label="GitHub Repository">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                                </a>
+                            </div>
+                            <h3 class="project-title">ArtListener</h3>
+                            <p class="project-desc">An interactive indoor museum audio guide app providing audio descriptions of exhibits. Uses Wi-Fi SSID and RSSI signal strength data for indoor location detection to trigger automated, exhibit-linked multimedia playback.</p>
+                            <div class="tech-stack">
+                                <span class="tech-tag">Flutter</span>
+                                <span class="tech-tag">Dart</span>
+                                <span class="tech-tag">Cross-platform</span>
+                            </div>
+                        </div>
+
+                        <!-- Project 3 -->
+                        <div class="project-card">
+                            <div class="project-header">
+                                <svg class="folder-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                                <a href="https://github.com/Yuvanrr/BloodSync" target="_blank" rel="noopener noreferrer" class="github-link" aria-label="GitHub Repository">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                                </a>
+                            </div>
+                            <h3 class="project-title">BloodSync</h3>
+                            <p class="project-desc">A mobile application to connect blood donors directly with recipients. Handles donor registration, blood group filtering, and request management.</p>
+                            <div class="tech-stack">
+                                <span class="tech-tag">Kotlin</span>
+                                <span class="tech-tag">Android</span>
+                                <span class="tech-tag">Firebase</span>
+                            </div>
+                        </div>
+
+                        <!-- Project 4 -->
+                        <div class="project-card">
+                            <div class="project-header">
+                                <svg class="folder-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                                <a href="https://github.com/Yuvanrr/TechConnect" target="_blank" rel="noopener noreferrer" class="github-link" aria-label="GitHub Repository">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                                </a>
+                            </div>
+                            <h3 class="project-title">TechConnect</h3>
+                            <p class="project-desc">A robust event management web platform for managing college tech events, handling user registration, event listings, and participation tracking.</p>
+                            <div class="tech-stack">
+                                <span class="tech-tag">Node.js</span>
+                                <span class="tech-tag">Express.js</span>
+                                <span class="tech-tag">MongoDB</span>
+                            </div>
+                        </div>
+
+                        <!-- Project 5 -->
+                        <div class="project-card">
+                            <div class="project-header">
+                                <svg class="folder-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                                <a href="https://github.com/Yuvanrr/weatherpapp" target="_blank" rel="noopener noreferrer" class="github-link" aria-label="GitHub Repository">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                                </a>
+                            </div>
+                            <h3 class="project-title">weatherpapp</h3>
+                            <p class="project-desc">A clean, responsive weather application for tracking real-time meteorological conditions and forecasting, built to practice API integrations, responsive grid designs, and web hosting structures.</p>
+                            <div class="tech-stack">
+                                <span class="tech-tag">JavaScript</span>
+                                <span class="tech-tag">HTML5</span>
+                                <span class="tech-tag">CSS3</span>
+                                <span class="tech-tag">Weather API</span>
+                            </div>
+                        </div>
+
+                        <!-- Project 6 -->
+                        <div class="project-card">
+                            <div class="project-header">
+                                <svg class="folder-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                                <a href="https://github.com/Yuvanrr/Devops-lab" target="_blank" rel="noopener noreferrer" class="github-link" aria-label="GitHub Repository">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                                </a>
+                            </div>
+                            <h3 class="project-title">Devops-lab</h3>
+                            <p class="project-desc">A hands-on reference laboratory and tutorial repository designed to practice Git version control commands, branching workflows, and fundamental DevOps practices.</p>
+                            <div class="tech-stack">
+                                <span class="tech-tag">Git</span>
+                                <span class="tech-tag">DevOps</span>
+                                <span class="tech-tag">Shell Scripting</span>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </section>
+
+                <!-- Skills Tab -->
+                <section class="editor-section" id="skills">
+                    <h2>Skills & Expertise</h2>
+                    <div class="skills-container" style="margin-top: 1rem;">
+                        <!-- Development Core -->
+                        <div class="skill-group">
+                            <h3>Dev_Core</h3>
+                            
+                            <div class="skill-item">
+                                <div class="skill-name"><span>Kotlin (Jetpack Compose)</span> <span>90%</span></div>
+                                <div class="skill-bar-bg"><div class="skill-bar-fill" data-width="90%"></div></div>
+                            </div>
+                            
+                            <div class="skill-item">
+                                <div class="skill-name"><span>Python</span> <span>85%</span></div>
+                                <div class="skill-bar-bg"><div class="skill-bar-fill" data-width="85%"></div></div>
+                            </div>
+                            
+                            <div class="skill-item">
+                                <div class="skill-name"><span>Dart / Flutter</span> <span>80%</span></div>
+                                <div class="skill-bar-bg"><div class="skill-bar-fill" data-width="80%"></div></div>
+                            </div>
+                            
+                            <div class="skill-item">
+                                <div class="skill-name"><span>JavaScript / Java</span> <span>80%</span></div>
+                                <div class="skill-bar-bg"><div class="skill-bar-fill" data-width="80%"></div></div>
+                            </div>
+                        </div>
+
+                        <!-- ML / AI & Web -->
+                        <div class="skill-group">
+                            <h3>ML_&_Fullstack</h3>
+                            <div class="skill-item">
+                                <div class="skill-name"><span>TensorFlow Lite / On-device ML</span> <span>85%</span></div>
+                                <div class="skill-bar-bg"><div class="skill-bar-fill" data-width="85%"></div></div>
+                            </div>
+                            <div class="skill-item">
+                                <div class="skill-name"><span>TensorFlow / CNN / LSTM</span> <span>80%</span></div>
+                                <div class="skill-bar-bg"><div class="skill-bar-fill" data-width="80%"></div></div>
+                            </div>
+                            <div class="skill-item">
+                                <div class="skill-name"><span>Node.js / Express.js / MongoDB</span> <span>80%</span></div>
+                                <div class="skill-bar-bg"><div class="skill-bar-fill" data-width="80%"></div></div>
+                            </div>
+                        </div>
+
+                        <!-- Systems & Tools -->
+                        <div class="skill-group">
+                            <h3>Sys_&_Tools</h3>
+                            <div class="skill-tags-inline">
+                                <span class="skill-tag-outline">Linux (Pop/Fedora/Arch)</span>
+                                <span class="skill-tag-outline">Android Studio</span>
+                                <span class="skill-tag-outline">VS Code</span>
+                                <span class="skill-tag-outline">Git / GitHub</span>
+                                <span class="skill-tag-outline">Stable Diffusion</span>
+                                <span class="skill-tag-outline">Flux</span>
+                                <span class="skill-tag-outline">Kaggle</span>
+                                <span class="skill-tag-outline">Dual-Boot Expert</span>
+                                <span class="skill-tag-outline">NVIDIA Troubleshooting</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Playground Tab -->
+                <section class="editor-section" id="playground">
+                    <div class="playground-header">
+                        <h2>Developer Playground</h2>
+                        <p class="playground-subtitle">Connect the path from the Input Signal to the Output Node to train and deploy the neural network model successfully!</p>
+                        
+                        <div class="level-selector">
+                            <button class="level-btn active" data-level="1">Perceptron</button>
+                            <button class="level-btn" data-level="2">ConvNet</button>
+                            <button class="level-btn" data-level="3">Transformer</button>
+                        </div>
+                    </div>
+
+                    <div class="game-card">
+                        <!-- Success overlay -->
+                        <div class="game-success-overlay" id="game-success">
+                            <svg class="success-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <h3 style="font-size: 1.75rem; margin-bottom: 0.5rem; font-family: var(--font-display);">Model Deployed!</h3>
+                            <p style="font-size: 0.95rem; font-family: var(--font-mono); color: #cbd5e1; margin-bottom: 2rem;" id="success-stats">Training Complete: 99.8% Accuracy</p>
+                            <button class="btn btn-primary" id="reset-btn">Next Epoch (Reset)</button>
+                        </div>
+
+                        <!-- 4x4 Grid -->
+                        <div class="grid-container" id="grid">
+                            <!-- Node cells will be generated by JS -->
+                        </div>
+
+                        <div class="game-status-text" id="status-text">
+                            System Status: Ready to execute...
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Contact Tab -->
+                <section class="editor-section" id="contact">
+                    <h2>Get In Touch</h2>
+                    <div class="contact-card" style="margin-top: 1rem;">
+                        <p>Currently open to new opportunities, collaborations, and discussions about mobile machine learning and Linux systems. My inbox is always open.</p>
+                        <div class="contact-links">
+                            <a href="mailto:yuvanraaju123@gmail.com" class="btn btn-primary">Mail.send()</a>
+                            <a href="https://github.com/Yuvanrr" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
+                                <svg style="vertical-align: middle; margin-right: 8px; width:1.2rem; height:1.2rem;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                                GitHub
+                            </a>
+                        </div>
+                        <div class="contact-meta">
+                            <p style="margin-bottom: 0.5rem;">Phone: <strong>+91 7708630755</strong></p>
+                            <p style="margin-bottom: 0;">Location: <strong>Coimbatore, Tamil Nadu</strong></p>
+                        </div>
+                    </div>
+                </section>
             </div>
-        </section>
-
-        <section id="projects" class="container">
-            <h2 class="fade-up">Selected Work</h2>
-            <div class="projects-grid">
-                <!-- Project 1 (Flagship) -->
-                <div class="project-card project-flagship fade-up">
-                    <div class="project-header">
-                        <svg class="folder-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
-                        <a href="https://github.com/Yuvanrr/DeepSight" target="_blank" rel="noopener noreferrer" class="github-link">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
-                        </a>
-                    </div>
-                    <h3 class="project-title">DeepSight</h3>
-                    <p class="project-desc">A privacy-first Android application for on-device deepfake and AI-generated content detection. Trained a MobileNetV3 image classifier locally (~88.94% accuracy) and converted it to TFLite. Built a CNN+LSTM video classifier and utilized the MediaProjection API with AccessibilityService for a real-time floating overlay scanning screen content locally.</p>
-                    <div class="tech-stack">
-                        <span class="tech-tag">Kotlin</span>
-                        <span class="tech-tag">Jetpack Compose</span>
-                        <span class="tech-tag">TFLite</span>
-                        <span class="tech-tag">MobileNetV3</span>
-                        <span class="tech-tag">MediaProjection API</span>
-                    </div>
-                </div>
-
-                <!-- Project 2 -->
-                <div class="project-card fade-up" style="transition-delay: 100ms;">
-                    <div class="project-header">
-                        <svg class="folder-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
-                        <a href="https://github.com/Yuvanrr/ArtListener" target="_blank" rel="noopener noreferrer" class="github-link">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
-                        </a>
-                    </div>
-                    <h3 class="project-title">ArtListener</h3>
-                    <p class="project-desc">An interactive indoor museum audio guide app providing audio descriptions of exhibits. Uses Wi-Fi SSID and RSSI signal strength data for indoor location detection to trigger automated, exhibit-linked multimedia playback.</p>
-                    <div class="tech-stack">
-                        <span class="tech-tag">Flutter</span>
-                        <span class="tech-tag">Dart</span>
-                        <span class="tech-tag">Cross-platform Mobile</span>
-                    </div>
-                </div>
-
-                <!-- Project 3 -->
-                <div class="project-card fade-up" style="transition-delay: 200ms;">
-                    <div class="project-header">
-                        <svg class="folder-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
-                        <a href="https://github.com/Yuvanrr/BloodSync" target="_blank" rel="noopener noreferrer" class="github-link">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
-                        </a>
-                    </div>
-                    <h3 class="project-title">BloodSync</h3>
-                    <p class="project-desc">A mobile application to connect blood donors directly with recipients. Handles donor registration, blood group filtering, and request management.</p>
-                    <div class="tech-stack">
-                        <span class="tech-tag">Kotlin</span>
-                        <span class="tech-tag">Android</span>
-                    </div>
-                </div>
-
-                <!-- Project 4 -->
-                <div class="project-card fade-up" style="transition-delay: 300ms;">
-                    <div class="project-header">
-                        <svg class="folder-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
-                        <a href="https://github.com/Yuvanrr/TechConnect" target="_blank" rel="noopener noreferrer" class="github-link">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
-                        </a>
-                    </div>
-                    <h3 class="project-title">TechConnect</h3>
-                    <p class="project-desc">A robust event management web platform for managing college tech events, handling user registration, event listings, and participation tracking.</p>
-                    <div class="tech-stack">
-                        <span class="tech-tag">Node.js</span>
-                        <span class="tech-tag">Express.js</span>
-                        <span class="tech-tag">MongoDB</span>
-                    </div>
-                </div>
-
-                <!-- Project 5 -->
-                <div class="project-card fade-up" style="transition-delay: 400ms;">
-                    <div class="project-header">
-                        <svg class="folder-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
-                        <a href="https://github.com/Yuvanrr/weatherpapp" target="_blank" rel="noopener noreferrer" class="github-link">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
-                        </a>
-                    </div>
-                    <h3 class="project-title">weatherpapp</h3>
-                    <p class="project-desc">A clean, responsive weather application for tracking real-time meteorological conditions and forecasting, built to practice API integrations, responsive grid designs, and web hosting structures.</p>
-                    <div class="tech-stack">
-                        <span class="tech-tag">JavaScript</span>
-                        <span class="tech-tag">HTML5</span>
-                        <span class="tech-tag">CSS3</span>
-                        <span class="tech-tag">Weather API</span>
-                    </div>
-                </div>
-
-                <!-- Project 6 -->
-                <div class="project-card fade-up" style="transition-delay: 500ms;">
-                    <div class="project-header">
-                        <svg class="folder-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
-                        <a href="https://github.com/Yuvanrr/Devops-lab" target="_blank" rel="noopener noreferrer" class="github-link">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
-                        </a>
-                    </div>
-                    <h3 class="project-title">Devops-lab</h3>
-                    <p class="project-desc">A hands-on reference laboratory and tutorial repository designed to practice Git version control commands, branching workflows, and fundamental DevOps practices.</p>
-                    <div class="tech-stack">
-                        <span class="tech-tag">Git</span>
-                        <span class="tech-tag">DevOps</span>
-                        <span class="tech-tag">Shell Scripting</span>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="skills" class="container">
-            <h2 class="fade-up">Skills & Expertise</h2>
-            <div class="skills-container">
-                <!-- Development Core -->
-                <div class="skill-group fade-up">
-                    <h3>Dev_Core</h3>
-                    
-                    <div class="skill-item">
-                        <div class="skill-name"><span>Kotlin (Jetpack Compose)</span> <span>90%</span></div>
-                        <div class="skill-bar-bg"><div class="skill-bar-fill" data-width="90%"></div></div>
-                    </div>
-                    
-                    <div class="skill-item">
-                        <div class="skill-name"><span>Python</span> <span>85%</span></div>
-                        <div class="skill-bar-bg"><div class="skill-bar-fill" data-width="85%"></div></div>
-                    </div>
-                    
-                    <div class="skill-item">
-                        <div class="skill-name"><span>Dart / Flutter</span> <span>80%</span></div>
-                        <div class="skill-bar-bg"><div class="skill-bar-fill" data-width="80%"></div></div>
-                    </div>
-                    
-                    <div class="skill-item">
-                        <div class="skill-name"><span>JavaScript / Java</span> <span>80%</span></div>
-                        <div class="skill-bar-bg"><div class="skill-bar-fill" data-width="80%"></div></div>
-                    </div>
-                </div>
-
-                <!-- ML / AI & Web -->
-                <div class="skill-group fade-up" style="transition-delay: 100ms;">
-                    <h3>ML_&_Fullstack</h3>
-                    <div class="skill-item">
-                        <div class="skill-name"><span>TensorFlow Lite / On-device ML</span> <span>85%</span></div>
-                        <div class="skill-bar-bg"><div class="skill-bar-fill" data-width="85%"></div></div>
-                    </div>
-                    <div class="skill-item">
-                        <div class="skill-name"><span>TensorFlow / CNN / LSTM</span> <span>80%</span></div>
-                        <div class="skill-bar-bg"><div class="skill-bar-fill" data-width="80%"></div></div>
-                    </div>
-                    <div class="skill-item">
-                        <div class="skill-name"><span>Node.js / Express.js / MongoDB</span> <span>80%</span></div>
-                        <div class="skill-bar-bg"><div class="skill-bar-fill" data-width="80%"></div></div>
-                    </div>
-                </div>
-
-                <!-- Systems & Tools -->
-                <div class="skill-group fade-up" style="transition-delay: 200ms;">
-                    <h3>Sys_&_Tools</h3>
-                    <div class="skill-tags-inline">
-                        <span class="skill-tag-outline">Linux (Pop/Fedora/Arch)</span>
-                        <span class="skill-tag-outline">Android Studio</span>
-                        <span class="skill-tag-outline">VS Code</span>
-                        <span class="skill-tag-outline">Git / GitHub</span>
-                        <span class="skill-tag-outline">Stable Diffusion</span>
-                        <span class="skill-tag-outline">Flux</span>
-                        <span class="skill-tag-outline">Kaggle</span>
-                        <span class="skill-tag-outline">Dual-Boot Expert</span>
-                        <span class="skill-tag-outline">NVIDIA Troubleshooting</span>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="contact" class="container fade-up">
-            <div class="contact-content">
-                <h2>Get In Touch</h2>
-                <p>Currently open to new opportunities, collaborations, and discussions about mobile ML and Linux systems. My inbox is always open.</p>
-                <div class="contact-links">
-                    <a href="mailto:yuvanraaju123@gmail.com" class="btn btn-primary">Mail.send()</a>
-                    <a href="https://github.com/Yuvanrr" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
-                        <svg style="vertical-align: middle; margin-right: 8px; width:1.2rem; height:1.2rem;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
-                        GitHub
-                    </a>
-                </div>
-                <div style="margin-top: 2rem; font-size: 0.95rem; color: var(--text-muted);">
-                    <p style="margin-bottom: 0.5rem;">Phone: <strong>+91 7708630755</strong></p>
-                    <p>Location: <strong>Coimbatore, Tamil Nadu</strong></p>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <footer>
-        <div class="container">
-            <p>Built by Yuvan Raaju R &copy; <span id="year"></span></p>
-            <p style="font-size: 0.75rem; margin-top: 5px; opacity: 0.5;">End of Stream.</p>
-        </div>
-    </footer>
+            
+            <!-- IDE Status Bar Footer -->
+            <footer style="height:26px; border-top:1px solid var(--border-color); background:var(--sidebar-color); font-family:var(--font-mono); font-size:0.75rem; color:var(--text-muted); display:flex; align-items:center; justify-content:space-between; padding:0 1rem; flex-shrink:0;">
+                <div>main* | LF | UTF-8 | Javascript</div>
+                <div>Built by Yuvan Raaju R &copy; <span id="year"></span></div>
+            </footer>
+        </main>
+    </div>
 
     <script>
-        // Spotlight Effect for Cards & Terminal Box
-        document.querySelectorAll('.project-card, .terminal-box').forEach(card => {
-            card.addEventListener('mousemove', e => {
+        // Set current year
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        // Cursor spotlight tracking
+        document.addEventListener('mousemove', e => {
+            const cards = document.querySelectorAll('.project-card, .contact-card');
+            cards.forEach(card => {
                 const rect = card.getBoundingClientRect();
                 const x = e.clientX - rect.left;
                 const y = e.clientY - rect.top;
@@ -851,51 +1198,79 @@
             });
         });
 
-        // Set current year
-        document.getElementById('year').textContent = new Date().getFullYear();
+        // Tab and File explorer switching
+        const explorerItems = document.querySelectorAll('.explorer-item');
+        const editorTabs = document.querySelectorAll('.editor-tab');
+        const sections = document.querySelectorAll('.editor-section');
+        const sidebar = document.getElementById('sidebar');
 
-        // Scroll Reveal Animations
-        const observerOptions = {
-            root: null,
-            rootMargin: '0px',
-            threshold: 0.1
-        };
+        function switchTab(targetId) {
+            // Remove active class from all explorer items, editor tabs, and sections
+            explorerItems.forEach(item => item.classList.remove('active'));
+            editorTabs.forEach(tab => tab.classList.remove('active'));
+            sections.forEach(sec => sec.classList.remove('active'));
 
-        const observer = new IntersectionObserver((entries, observer) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                    
-                    if (entry.target.classList.contains('skill-group')) {
-                        const bars = entry.target.querySelectorAll('.skill-bar-fill');
-                        bars.forEach(bar => {
-                            bar.style.transform = `scaleX(1)`;
-                            bar.style.width = bar.getAttribute('data-width');
-                        });
-                    }
-                    observer.unobserve(entry.target);
+            // Add active class to corresponding items
+            const activeExplorer = document.querySelector(`.explorer-item[data-target="${targetId}"]`);
+            const activeTab = document.querySelector(`.editor-tab[data-target="${targetId}"]`);
+            const activeSection = document.getElementById(targetId);
+
+            if (activeExplorer) activeExplorer.classList.add('active');
+            if (activeTab) activeTab.classList.add('active');
+            if (activeSection) {
+                activeSection.classList.add('active');
+                
+                // Trigger skills animation if the skills tab is active
+                if (targetId === 'skills') {
+                    const bars = activeSection.querySelectorAll('.skill-bar-fill');
+                    bars.forEach(bar => {
+                        bar.style.transform = `scaleX(1)`;
+                        bar.style.width = bar.getAttribute('data-width');
+                    });
                 }
-            });
-        }, observerOptions);
+            }
 
-        document.querySelectorAll('.fade-up').forEach(element => {
-            observer.observe(element);
+            // Close sidebar on mobile after selecting
+            sidebar.classList.remove('open');
+        }
+
+        // Attach listeners to sidebar and tab click triggers
+        explorerItems.forEach(item => {
+            item.addEventListener('click', () => switchTab(item.getAttribute('data-target')));
         });
 
-        // Floating Elegant Ambient Particles Canvas
-        const canvas = document.getElementById('matrix-canvas');
+        editorTabs.forEach(tab => {
+            tab.addEventListener('click', () => switchTab(tab.getAttribute('data-target')));
+        });
+
+        // Attach click listeners to text links / CTA triggers
+        document.addEventListener('click', e => {
+            const trigger = e.target.closest('.tab-trigger');
+            if (trigger) {
+                e.preventDefault();
+                switchTab(trigger.getAttribute('data-target'));
+            }
+        });
+
+        // Mobile drawer toggling
+        const menuBtn = document.getElementById('menu-btn');
+        menuBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+        });
+
+        // Ambient Floating Particles background
+        const canvas = document.getElementById('ambient-canvas');
         const ctx = canvas.getContext('2d');
 
         let width = canvas.width = window.innerWidth;
         let height = canvas.height = window.innerHeight;
 
         const particles = [];
-        const particleCount = Math.min(60, Math.floor((width * height) / 25000));
+        const particleCount = Math.min(50, Math.floor((width * height) / 30000));
         const connectionDistance = 120;
-        
         let mouse = { x: null, y: null, radius: 150 };
 
-        window.addEventListener('mousemove', (e) => {
+        window.addEventListener('mousemove', e => {
             mouse.x = e.clientX;
             mouse.y = e.clientY;
         });
@@ -909,8 +1284,8 @@
             constructor() {
                 this.x = Math.random() * width;
                 this.y = Math.random() * height;
-                this.vx = (Math.random() - 0.5) * 0.4;
-                this.vy = (Math.random() - 0.5) * 0.4;
+                this.vx = (Math.random() - 0.5) * 0.3;
+                this.vy = (Math.random() - 0.5) * 0.3;
                 this.radius = Math.random() * 2 + 0.8;
             }
 
@@ -921,7 +1296,7 @@
                 this.x += this.vx;
                 this.y += this.vy;
 
-                // Mouse interaction (soft spring-like repel)
+                // Mouse drift interaction
                 if (mouse.x !== null && mouse.y !== null) {
                     const dx = this.x - mouse.x;
                     const dy = this.y - mouse.y;
@@ -929,8 +1304,8 @@
                     if (dist < mouse.radius) {
                         const force = (mouse.radius - dist) / mouse.radius;
                         const angle = Math.atan2(dy, dx);
-                        this.x += Math.cos(angle) * force * 1.2;
-                        this.y += Math.sin(angle) * force * 1.2;
+                        this.x += Math.cos(angle) * force * 1.0;
+                        this.y += Math.sin(angle) * force * 1.0;
                     }
                 }
             }
@@ -938,19 +1313,19 @@
             draw() {
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                ctx.fillStyle = 'rgba(99, 102, 241, 0.15)';
+                ctx.fillStyle = 'rgba(99, 102, 241, 0.12)';
                 ctx.fill();
             }
         }
 
-        function init() {
+        function initParticles() {
             particles.length = 0;
             for (let i = 0; i < particleCount; i++) {
                 particles.push(new Particle());
             }
         }
 
-        function animate() {
+        function animateParticles() {
             ctx.clearRect(0, 0, width, height);
 
             particles.forEach(p => {
@@ -958,7 +1333,6 @@
                 p.draw();
             });
 
-            // Draw line connections between nearby particles
             for (let i = 0; i < particles.length; i++) {
                 for (let j = i + 1; j < particles.length; j++) {
                     const dx = particles[i].x - particles[j].x;
@@ -966,7 +1340,7 @@
                     const dist = Math.sqrt(dx * dx + dy * dy);
 
                     if (dist < connectionDistance) {
-                        const alpha = (1 - (dist / connectionDistance)) * 0.06;
+                        const alpha = (1 - (dist / connectionDistance)) * 0.05;
                         ctx.strokeStyle = `rgba(99, 102, 241, ${alpha})`;
                         ctx.lineWidth = 0.8;
                         ctx.beginPath();
@@ -977,17 +1351,349 @@
                 }
             }
 
-            requestAnimationFrame(animate);
+            requestAnimationFrame(animateParticles);
         }
 
         window.addEventListener('resize', () => {
             width = canvas.width = window.innerWidth;
             height = canvas.height = window.innerHeight;
-            init();
+            initParticles();
         });
 
-        init();
-        animate();
+        initParticles();
+        animateParticles();
+
+        // ==========================================
+        // NEURAL LINK ROTATION GAME LOGIC
+        // ==========================================
+        const gridElement = document.getElementById('grid');
+        const statusElement = document.getElementById('status-text');
+        const successOverlay = document.getElementById('game-success');
+        const successStats = document.getElementById('success-stats');
+        const resetBtn = document.getElementById('reset-btn');
+        const levelBtns = document.querySelectorAll('.level-btn');
+
+        let currentLevel = 1;
+        let gameGrid = [];
+        let connections = []; // Track connected nodes
+
+        // Node Types:
+        // 'I' - Input (start node)
+        // 'O' - Output (end node)
+        // 'H' - Horizontal straight line (connects L-R)
+        // 'V' - Vertical straight line (connects T-B)
+        // 'C' - Corner (connects 2 adjacent directions)
+        // 'B' - Blocked (dead node)
+
+        // Standard level grid blueprints
+        const levels = {
+            1: {
+                name: "Level 1: Simple Perceptron",
+                accuracy: "98.7% Accuracy reached!",
+                // 4x4 Grid blueprint
+                layout: [
+                    { type: 'I', rot: 0, r: 0, c: 0 }, // Input (Row 0, Col 0)
+                    { type: 'H', rot: 90, r: 0, c: 1 }, // H pipe (rotated)
+                    { type: 'C', rot: 0, r: 0, c: 2 },  // Corner
+                    { type: 'B', rot: 0, r: 0, c: 3 },
+                    
+                    { type: 'B', rot: 0, r: 1, c: 0 },
+                    { type: 'B', rot: 0, r: 1, c: 1 },
+                    { type: 'C', rot: 180, r: 1, c: 2 },
+                    { type: 'B', rot: 0, r: 1, c: 3 },
+
+                    { type: 'B', rot: 0, r: 2, c: 0 },
+                    { type: 'C', rot: 90, r: 2, c: 1 },
+                    { type: 'H', rot: 90, r: 2, c: 2 },
+                    { type: 'C', rot: 270, r: 2, c: 3 },
+
+                    { type: 'B', rot: 0, r: 3, c: 0 },
+                    { type: 'C', rot: 0, r: 3, c: 1 },
+                    { type: 'H', rot: 0, r: 3, c: 2 },
+                    { type: 'O', rot: 0, r: 3, c: 3 }  // Output (Row 3, Col 3)
+                ]
+            },
+            2: {
+                name: "Level 2: Convolutional Net",
+                accuracy: "99.4% Accuracy reached!",
+                layout: [
+                    { type: 'I', rot: 0, r: 0, c: 0 },
+                    { type: 'C', rot: 90, r: 0, c: 1 },
+                    { type: 'H', rot: 0, r: 0, c: 2 },
+                    { type: 'C', rot: 180, r: 0, c: 3 },
+
+                    { type: 'C', rot: 0, r: 1, c: 0 },
+                    { type: 'C', rot: 270, r: 1, c: 1 },
+                    { type: 'B', rot: 0, r: 1, c: 2 },
+                    { type: 'H', rot: 90, r: 1, c: 3 },
+
+                    { type: 'H', rot: 90, r: 2, c: 0 },
+                    { type: 'C', rot: 90, r: 2, c: 1 },
+                    { type: 'H', rot: 0, r: 2, c: 2 },
+                    { type: 'C', rot: 270, r: 2, c: 3 },
+
+                    { type: 'C', rot: 180, r: 3, c: 0 },
+                    { type: 'H', rot: 90, r: 3, c: 1 },
+                    { type: 'H', rot: 0, r: 3, c: 2 },
+                    { type: 'O', rot: 0, r: 3, c: 3 }
+                ]
+            },
+            3: {
+                name: "Level 3: Deep Transformer",
+                accuracy: "99.9% Accuracy (Zero-shot SOTA)!",
+                layout: [
+                    { type: 'I', rot: 0, r: 0, c: 0 },
+                    { type: 'H', rot: 90, r: 0, c: 1 },
+                    { type: 'C', rot: 90, r: 0, c: 2 },
+                    { type: 'C', rot: 180, r: 0, c: 3 },
+
+                    { type: 'C', rot: 90, r: 1, c: 0 },
+                    { type: 'C', rot: 0, r: 1, c: 1 },
+                    { type: 'C', rot: 270, r: 1, c: 2 },
+                    { type: 'H', rot: 90, r: 1, c: 3 },
+
+                    { type: 'H', rot: 90, r: 2, c: 0 },
+                    { type: 'H', rot: 0, r: 2, c: 1 },
+                    { type: 'C', rot: 90, r: 2, c: 2 },
+                    { type: 'C', rot: 270, r: 2, c: 3 },
+
+                    { type: 'C', rot: 0, r: 3, c: 0 },
+                    { type: 'H', rot: 90, r: 3, c: 1 },
+                    { type: 'H', rot: 0, r: 3, c: 2 },
+                    { type: 'O', rot: 0, r: 3, c: 3 }
+                ]
+            }
+        };
+
+        // Get allowed connection directions for a node type based on its current rotation angle.
+        // Rotations are: 0, 90, 180, 270 degrees.
+        // Directions: 'U' (Up), 'D' (Down), 'L' (Left), 'R' (Right).
+        function getConnectors(node) {
+            const { type, rot } = node;
+            if (type === 'B') return [];
+            
+            if (type === 'I') return ['R']; // Input node only sends to the right
+            if (type === 'O') return ['L']; // Output node only accepts from the left
+            
+            if (type === 'H') {
+                // Horizontal straight connects left/right when rot=0/180, top/bottom when rot=90/270
+                return (rot === 0 || rot === 180) ? ['L', 'R'] : ['U', 'D'];
+            }
+            
+            if (type === 'V') {
+                // Vertical straight connects top/bottom when rot=0/180, left/right when rot=90/270
+                return (rot === 0 || rot === 180) ? ['U', 'D'] : ['L', 'R'];
+            }
+            
+            if (type === 'C') {
+                // Corner pipe default (rot=0) connects Right and Down (└ Shape)
+                if (rot === 0) return ['R', 'D'];
+                if (rot === 90) return ['D', 'L'];
+                if (rot === 180) return ['L', 'U'];
+                if (rot === 270) return ['U', 'R'];
+            }
+            return [];
+        }
+
+        // Generate SVG markup based on node type
+        function getSvgForNode(type) {
+            if (type === 'I') {
+                return `<svg class="node-svg" viewBox="0 0 80 80">
+                    <circle cx="40" cy="40" r="14" fill="#10b981" />
+                    <circle cx="40" cy="40" r="22" fill="none" stroke="#10b981" stroke-width="2" stroke-dasharray="4,4" />
+                    <path d="M40 40 H75" stroke="#10b981" stroke-width="3" stroke-linecap="round" />
+                    <text x="40" y="44" font-family="var(--font-mono)" font-size="9" fill="#08090f" font-weight="bold" text-anchor="middle">IN</text>
+                </svg>`;
+            }
+            if (type === 'O') {
+                return `<svg class="node-svg" viewBox="0 0 80 80">
+                    <circle cx="40" cy="40" r="14" fill="#6366f1" />
+                    <circle cx="40" cy="40" r="22" fill="none" stroke="#6366f1" stroke-width="2" stroke-dasharray="4,4" />
+                    <path d="M5 40 H40" stroke="#6366f1" stroke-width="3" stroke-linecap="round" />
+                    <text x="40" y="44" font-family="var(--font-mono)" font-size="9" fill="#f8fafc" font-weight="bold" text-anchor="middle">OUT</text>
+                </svg>`;
+            }
+            if (type === 'H' || type === 'V') {
+                return `<svg class="node-svg" viewBox="0 0 80 80">
+                    <path d="M5 40 H75" stroke="rgba(255,255,255,0.2)" stroke-width="3" stroke-linecap="round" />
+                    <circle cx="40" cy="40" r="5" fill="rgba(255,255,255,0.3)" />
+                </svg>`;
+            }
+            if (type === 'C') {
+                return `<svg class="node-svg" viewBox="0 0 80 80">
+                    <path d="M40 75 Q40 40 75 40" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="3" stroke-linecap="round" />
+                    <circle cx="40" cy="40" r="5" fill="rgba(255,255,255,0.3)" />
+                </svg>`;
+            }
+            if (type === 'B') {
+                return `<svg class="node-svg" viewBox="0 0 80 80">
+                    <line x1="25" y1="25" x2="55" y2="55" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    <line x1="55" y1="25" x2="25" y2="55" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    <rect x="15" y="15" width="50" height="50" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3,3" />
+                </svg>`;
+            }
+            return '';
+        }
+
+        // Initialize Level Grid
+        function loadLevel(levelNum) {
+            currentLevel = levelNum;
+            gameGrid = [];
+            gridElement.innerHTML = '';
+            successOverlay.classList.remove('show');
+            statusElement.textContent = `Compiling layers for ${levels[levelNum].name}...`;
+
+            const blueprint = levels[levelNum].layout;
+
+            blueprint.forEach((b, index) => {
+                const cell = document.createElement('div');
+                cell.className = 'node-cell';
+                cell.dataset.index = index;
+
+                // Set node properties
+                const node = {
+                    index: index,
+                    type: b.type,
+                    rot: b.rot,
+                    r: b.r,
+                    c: b.c,
+                    element: cell
+                };
+
+                if (b.type === 'B') {
+                    cell.classList.add('blocked');
+                } else if (b.type === 'I') {
+                    cell.classList.add('input-node');
+                } else if (b.type === 'O') {
+                    cell.classList.add('output-node');
+                }
+
+                cell.innerHTML = getSvgForNode(b.type);
+                
+                // Apply initial rotation to SVG container inside the node
+                const svg = cell.querySelector('.node-svg');
+                if (svg && b.type !== 'I' && b.type !== 'O') {
+                    svg.style.transform = `rotate(${b.rot}deg)`;
+                }
+
+                // Node click event
+                if (b.type !== 'I' && b.type !== 'O' && b.type !== 'B') {
+                    cell.addEventListener('click', () => rotateNode(node));
+                }
+
+                gridElement.appendChild(cell);
+                gameGrid.push(node);
+            });
+
+            checkPath();
+        }
+
+        // Rotate Node 90deg clockwise
+        function rotateNode(node) {
+            node.rot = (node.rot + 90) % 360;
+            const svg = node.element.querySelector('.node-svg');
+            if (svg) {
+                svg.style.transform = `rotate(${node.rot}deg)`;
+            }
+            
+            // Add subtle click animation
+            node.element.style.transform = 'scale(0.9)';
+            setTimeout(() => {
+                node.element.style.transform = '';
+            }, 100);
+
+            checkPath();
+        }
+
+        // Perform DFS from input to detect connection to output node
+        function checkPath() {
+            // Reset all cell connections classes
+            gameGrid.forEach(node => {
+                node.element.classList.remove('connected');
+                node.element.classList.remove('active-stream');
+            });
+
+            const visited = new Set();
+            const connectedNodes = [];
+            const queue = [0]; // Index of input node
+
+            while (queue.length > 0) {
+                const currentIdx = queue.shift();
+                if (visited.has(currentIdx)) continue;
+                visited.add(currentIdx);
+                
+                const currentNode = gameGrid[currentIdx];
+                connectedNodes.push(currentNode);
+
+                const currentConnectors = getConnectors(currentNode);
+
+                // Find adjacent grid items (4-neighborhood)
+                const adjacents = [
+                    { r: currentNode.r - 1, c: currentNode.c, dir: 'U', opposite: 'D' }, // Up
+                    { r: currentNode.r + 1, c: currentNode.c, dir: 'D', opposite: 'U' }, // Down
+                    { r: currentNode.r, c: currentNode.c - 1, dir: 'L', opposite: 'R' }, // Left
+                    { r: currentNode.r, c: currentNode.c + 1, dir: 'R', opposite: 'L' }  // Right
+                ];
+
+                adjacents.forEach(adj => {
+                    // Check array bounds
+                    if (adj.r >= 0 && adj.r < 4 && adj.c >= 0 && adj.c < 4) {
+                        const targetNode = gameGrid.find(n => n.r === adj.r && n.c === adj.c);
+                        
+                        if (targetNode && targetNode.type !== 'B' && !visited.has(targetNode.index)) {
+                            const targetConnectors = getConnectors(targetNode);
+
+                            // Check if connection terminals align between current and target nodes
+                            if (currentConnectors.includes(adj.dir) && targetConnectors.includes(adj.opposite)) {
+                                queue.push(targetNode.index);
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Visual effect: light up connected pathways
+            connectedNodes.forEach(node => {
+                node.element.classList.add('connected');
+            });
+
+            // If output node is visited, connection path is complete!
+            const outputIndex = 15; // Bottom-Right index
+            if (visited.has(outputIndex)) {
+                // Successful compilation
+                statusElement.textContent = "Forward pass successful. Model compiling...";
+                connectedNodes.forEach((node, idx) => {
+                    setTimeout(() => {
+                        node.element.classList.add('active-stream');
+                    }, idx * 60);
+                });
+
+                // Display success overlay
+                setTimeout(() => {
+                    successStats.textContent = levels[currentLevel].accuracy;
+                    successOverlay.classList.add('show');
+                }, connectedNodes.length * 60 + 500);
+            } else {
+                statusElement.textContent = "Status: Adjusting weights... Path broken.";
+            }
+        }
+
+        // Level navigation triggers
+        levelBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                levelBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                loadLevel(parseInt(btn.getAttribute('data-level')));
+            });
+        });
+
+        // Reset and next buttons
+        resetBtn.addEventListener('click', () => {
+            loadLevel(currentLevel);
+        });
+
+        // Init Game Board (Level 1)
+        loadLevel(1);
     </script>
 </body>
 </html>
